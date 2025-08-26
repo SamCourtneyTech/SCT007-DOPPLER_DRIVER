@@ -49,7 +49,7 @@ export default function AudioManager() {
     // Load engine sound for continuous playback
     engineSoundRef.current = new Audio('/attached_assets/CarDrivingSustaied_1756181540499.mp3');
     engineSoundRef.current.loop = true;
-    engineSoundRef.current.volume = 0.05; // Very quiet engine sound
+    engineSoundRef.current.volume = 0.2; // 20% volume engine sound
 
     // Load horn sound as AudioBuffer for better control
     const loadHornSound = async () => {
