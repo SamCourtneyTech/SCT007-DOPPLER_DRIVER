@@ -101,20 +101,20 @@ export default function PlayerCar() {
         <meshLambertMaterial color="#333333" />
       </mesh>
       
-      {/* Wheels */}
-      <mesh position={[-0.8, -0.3, 1]}>
+      {/* Wheels - rotated 45 degrees */}
+      <mesh position={[-0.8, -0.3, 1]} rotation={[0, 0, Math.PI / 4]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2]} />
         <meshLambertMaterial color="#222222" />
       </mesh>
-      <mesh position={[0.8, -0.3, 1]}>
+      <mesh position={[0.8, -0.3, 1]} rotation={[0, 0, Math.PI / 4]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2]} />
         <meshLambertMaterial color="#222222" />
       </mesh>
-      <mesh position={[-0.8, -0.3, -1]}>
+      <mesh position={[-0.8, -0.3, -1]} rotation={[0, 0, Math.PI / 4]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2]} />
         <meshLambertMaterial color="#222222" />
       </mesh>
-      <mesh position={[0.8, -0.3, -1]}>
+      <mesh position={[0.8, -0.3, -1]} rotation={[0, 0, Math.PI / 4]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2]} />
         <meshLambertMaterial color="#222222" />
       </mesh>
