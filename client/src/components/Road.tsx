@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useTexture } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 export default function Road() {
   const asphaltTexture = useTexture('/textures/asphalt.png');
   const grassTexture = useTexture('/textures/grass.png');
+  
+  // Refs for tracking offset
+  const asphaltOffsetRef = useRef(0);
+  const grassOffsetRef = useRef(0);
 
   // Configure texture repeating
   asphaltTexture.wrapS = asphaltTexture.wrapT = THREE.RepeatWrapping;
@@ -12,6 +17,17 @@ export default function Road() {
   
   grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
   grassTexture.repeat.set(4, 20);
+
+  // Animate textures for high-speed effect
+  useFrame((state, delta) => {
+    // Move road texture backward fast for speed effect
+    asphaltOffsetRef.current += delta * 3; // Adjust speed multiplier as needed
+    asphaltTexture.offset.y = -asphaltOffsetRef.current;
+    
+    // Move grass texture backward (slightly slower than road)
+    grassOffsetRef.current += delta * 2.5;
+    grassTexture.offset.y = -grassOffsetRef.current;
+  });
 
   return (
     <>
