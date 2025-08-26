@@ -5,7 +5,7 @@ import { useAudio } from '../lib/stores/useAudio';
 interface ActiveSound {
   source: AudioBufferSourceNode;
   gainNode: GainNode;
-  pannerNode: StereoPannerNode;
+  pannerNode?: StereoPannerNode | null; // Optional since we're not using it anymore
   lane: number;
   startTime: number;
 }
@@ -207,7 +207,7 @@ export default function AudioManager() {
             const previousZ = previousCarPositionsRef.current.get(enemy.id) || enemy.z;
             const velocity = previousZ - enemy.z; // Positive = approaching
             
-            playHonkSoundWithDoppler(enemy.lane, enemy.z, velocity);
+            playHonkSound(enemy.lane, enemy.z, velocity);
             lastHonkTimeRef.current.set(enemy.lane, currentTime);
           }
         }
@@ -275,7 +275,7 @@ export default function AudioManager() {
     }
   };
 
-  const playHonkSoundWithDoppler = (lane: number, distance: number, velocity: number) => {
+  const playHonkSound = (lane: number, distance: number, velocity: number) => {
     if (!audioContextRef.current) return;
 
     // Select appropriate sound buffer based on lane
@@ -304,53 +304,22 @@ export default function AudioManager() {
 
       const source = audioContextRef.current.createBufferSource();
       const gainNode = audioContextRef.current.createGain();
-      const pannerNode = audioContextRef.current.createStereoPanner();
       
       source.buffer = selectedBuffer;
       
-      // Enhanced spatial positioning - more pronounced left/right separation
-      // Lane 0 (left) = -0.8, Lane 1 (center) = 0, Lane 2 (right) = 0.8
-      const panValues = [-0.8, 0, 0.8];
-      pannerNode.pan.value = panValues[lane];
+      // Simple volume control based on distance
+      const baseVolume = Math.max(0.3, Math.min(0.8, (30 - Math.abs(distance)) / 30));
+      gainNode.gain.value = baseVolume;
       
-      // More pronounced volume differences based on distance and lane
-      const baseVolume = Math.max(0.25, Math.min(0.9, (30 - Math.abs(distance)) / 30));
+      // Simple audio graph - no panning or filtering since audio is preprocessed
+      source.connect(gainNode);
+      gainNode.connect(audioContextRef.current.destination);
       
-      // Make center lane slightly louder, sides slightly different volumes for clarity
-      const laneVolumeMultiplier = [0.85, 1.0, 0.75]; // Left slightly quieter, center loudest, right quieter
-      const finalVolume = baseVolume * laneVolumeMultiplier[lane];
-      gainNode.gain.value = finalVolume;
-      
-      // Enhanced doppler effect for better audio cues
-      const dopplerFactor = 1 + (velocity * 0.15); // Increased effect strength
-      source.playbackRate.value = Math.max(0.6, Math.min(1.7, dopplerFactor));
-      
-      // Add slight frequency filtering to distinguish lanes better
-      const filterNode = audioContextRef.current.createBiquadFilter();
-      if (lane === 0) {
-        // Left lane: slightly lower frequency emphasis
-        filterNode.type = 'lowpass';
-        filterNode.frequency.value = 1200;
-      } else if (lane === 2) {
-        // Right lane: slightly higher frequency emphasis  
-        filterNode.type = 'highpass';
-        filterNode.frequency.value = 800;
-      } else {
-        // Center lane: no filtering for clarity
-        filterNode.type = 'allpass';
-      }
-      
-      // Connect the enhanced audio graph
-      source.connect(filterNode);
-      filterNode.connect(gainNode);
-      gainNode.connect(pannerNode);
-      pannerNode.connect(audioContextRef.current.destination);
-      
-      // Track this sound
+      // Track this sound (simplified)
       const activeSound: ActiveSound = {
         source,
         gainNode,
-        pannerNode,
+        pannerNode: null as any, // Not used anymore
         lane,
         startTime: audioContextRef.current.currentTime
       };
@@ -379,7 +348,7 @@ export default function AudioManager() {
         else if (selectedBuffer === rightHornBuffersRef.current.right3) soundVariant = 'right3';
       }
       
-      console.log(`Honk warning: Lane ${lane} (${['LEFT', 'CENTER', 'RIGHT'][lane]}), Sound: ${soundVariant}, Pan: ${panValues[lane]}, Volume: ${finalVolume.toFixed(2)}, Doppler: ${dopplerFactor.toFixed(2)}`);
+      console.log(`Honk warning: Lane ${lane} (${['LEFT', 'CENTER', 'RIGHT'][lane]}), Sound: ${soundVariant}, Volume: ${baseVolume.toFixed(2)}`);
     } catch (error) {
       console.log('Audio play prevented:', error);
     }
