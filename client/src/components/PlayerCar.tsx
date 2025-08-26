@@ -22,8 +22,10 @@ export default function PlayerCar() {
       state => state.left,
       pressed => {
         if (pressed && playerLane > 0) {
-          setPlayerLane(playerLane - 1);
-          console.log(`Switched to lane ${playerLane - 1} (LEFT)`);
+          const newLane = playerLane - 1;
+          setPlayerLane(newLane);
+          const position = lanePositions[newLane];
+          console.log(`A/LEFT ARROW pressed: moved to lane ${newLane} at position ${position} (LEFT SIDE)`);
         }
       }
     );
@@ -32,8 +34,10 @@ export default function PlayerCar() {
       state => state.right,
       pressed => {
         if (pressed && playerLane < 2) {
-          setPlayerLane(playerLane + 1);
-          console.log(`Switched to lane ${playerLane + 1} (RIGHT)`);
+          const newLane = playerLane + 1;
+          setPlayerLane(newLane);
+          const position = lanePositions[newLane];
+          console.log(`D/RIGHT ARROW pressed: moved to lane ${newLane} at position ${position} (RIGHT SIDE)`);
         }
       }
     );
