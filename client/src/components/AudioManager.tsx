@@ -22,9 +22,9 @@ export default function AudioManager() {
 
     // Load honking sounds for each lane
     honkSoundsRef.current = {
-      '0': new Audio('/sounds/hit.mp3'), // Use hit sound as honk for now
-      '1': new Audio('/sounds/hit.mp3'),
-      '2': new Audio('/sounds/hit.mp3'),
+      '0': new Audio('/sounds/success.mp3'), // Use success sound as honk
+      '1': new Audio('/sounds/success.mp3'),
+      '2': new Audio('/sounds/success.mp3'),
     };
 
     return () => {
