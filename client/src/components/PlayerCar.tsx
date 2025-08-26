@@ -23,7 +23,7 @@ export default function PlayerCar() {
       pressed => {
         if (pressed && playerLane > 0) {
           setPlayerLane(playerLane - 1);
-          console.log(`Switched to lane ${playerLane - 1}`);
+          console.log(`Switched to lane ${playerLane - 1} (LEFT)`);
         }
       }
     );
@@ -33,7 +33,7 @@ export default function PlayerCar() {
       pressed => {
         if (pressed && playerLane < 2) {
           setPlayerLane(playerLane + 1);
-          console.log(`Switched to lane ${playerLane + 1}`);
+          console.log(`Switched to lane ${playerLane + 1} (RIGHT)`);
         }
       }
     );
