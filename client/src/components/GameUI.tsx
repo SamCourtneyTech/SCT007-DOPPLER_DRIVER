@@ -82,19 +82,21 @@ export default function GameUI() {
           }}>
             <div style={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              padding: '30px',
+              padding: '25px',
               borderRadius: '15px',
               textAlign: 'center',
-              maxWidth: '450px',
-              maxHeight: '80vh',
+              width: '90vw',
+              maxWidth: '500px',
+              maxHeight: '90vh',
               overflow: 'auto',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
             }}>
               <h1 style={{ 
-                fontSize: '30px', 
+                fontSize: '28px', 
                 fontWeight: 'bold', 
-                marginBottom: '20px',
-                color: '#333'
+                marginBottom: '18px',
+                color: '#333',
+                wordWrap: 'break-word'
               }}>
                 Wrong Way Driver
               </h1>
@@ -157,10 +159,11 @@ export default function GameUI() {
           }}>
             <div style={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              padding: '30px',
+              padding: '25px',
               borderRadius: '15px',
               textAlign: 'center',
-              maxWidth: '400px',
+              width: '90vw',
+              maxWidth: '450px',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
             }}>
               <h2 style={{ 
