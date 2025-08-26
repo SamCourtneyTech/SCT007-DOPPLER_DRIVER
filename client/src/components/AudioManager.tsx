@@ -76,25 +76,24 @@ export default function AudioManager() {
     if (!audioContextRef.current || !hornBufferRef.current || isMuted || gameState !== 'playing') return;
 
     const currentTime = audioContextRef.current.currentTime;
-    const HONK_COOLDOWN = 1.5; // Seconds between honks per lane
-    const MIN_CAR_DISTANCE = 8; // Minimum distance between cars in same lane to honk
+    const HONK_COOLDOWN = 0.8; // Reduced cooldown for more immediate response
+    const MIN_CAR_DISTANCE = 15; // Increased distance to prevent too many overlapping sounds
 
     enemyCars.forEach(enemy => {
-      // Only warn about cars that are approaching and close enough to be dangerous
-      if (enemy.z > -30 && enemy.z < 0) {
+      // Warn about cars that are approaching - increased range for earlier warning
+      if (enemy.z > -35 && enemy.z < 5) {
         const lastHonkTime = lastHonkTimeRef.current.get(enemy.lane) || 0;
         
         // Check if enough time has passed since last honk in this lane
         if (currentTime - lastHonkTime > HONK_COOLDOWN) {
-          // Check if there's another car too close in the same lane
-          const tooCloseToAnother = enemyCars.some(otherCar => 
-            otherCar.id !== enemy.id && 
-            otherCar.lane === enemy.lane && 
-            Math.abs(otherCar.z - enemy.z) < MIN_CAR_DISTANCE &&
-            lastHonkTimeRef.current.has(otherCar.lane)
+          // Find the closest car in this lane (priority to closest)
+          const carsInLane = enemyCars.filter(car => car.lane === enemy.lane);
+          const closestCar = carsInLane.reduce((closest, car) => 
+            Math.abs(car.z) < Math.abs(closest.z) ? car : closest, enemy
           );
           
-          if (!tooCloseToAnother) {
+          // Only play sound for the closest car in each lane
+          if (closestCar.id === enemy.id) {
             // Calculate velocity for doppler effect
             const previousZ = previousCarPositionsRef.current.get(enemy.id) || enemy.z;
             const velocity = previousZ - enemy.z; // Positive = approaching
@@ -136,23 +135,41 @@ export default function AudioManager() {
       
       source.buffer = hornBufferRef.current;
       
-      // Set spatial position based on lane
-      // Lane 0 (left) = -1, Lane 1 (center) = 0, Lane 2 (right) = 1
-      const panValue = (lane - 1);
-      pannerNode.pan.value = panValue;
+      // Enhanced spatial positioning - more pronounced left/right separation
+      // Lane 0 (left) = -0.8, Lane 1 (center) = 0, Lane 2 (right) = 0.8
+      const panValues = [-0.8, 0, 0.8];
+      pannerNode.pan.value = panValues[lane];
       
-      // Adjust volume based on distance (closer = louder)
-      const volume = Math.max(0.15, Math.min(0.8, (25 - Math.abs(distance)) / 25));
-      gainNode.gain.value = volume;
+      // More pronounced volume differences based on distance and lane
+      const baseVolume = Math.max(0.25, Math.min(0.9, (30 - Math.abs(distance)) / 30));
       
-      // Doppler effect: adjust playback rate based on velocity
-      // Approaching cars (positive velocity) = higher pitch
-      // Receding cars (negative velocity) = lower pitch
-      const dopplerFactor = 1 + (velocity * 0.1); // Scale factor for effect strength
-      source.playbackRate.value = Math.max(0.7, Math.min(1.5, dopplerFactor));
+      // Make center lane slightly louder, sides slightly different volumes for clarity
+      const laneVolumeMultiplier = [0.85, 1.0, 0.75]; // Left slightly quieter, center loudest, right quieter
+      const finalVolume = baseVolume * laneVolumeMultiplier[lane];
+      gainNode.gain.value = finalVolume;
       
-      // Connect the audio graph
-      source.connect(gainNode);
+      // Enhanced doppler effect for better audio cues
+      const dopplerFactor = 1 + (velocity * 0.15); // Increased effect strength
+      source.playbackRate.value = Math.max(0.6, Math.min(1.7, dopplerFactor));
+      
+      // Add slight frequency filtering to distinguish lanes better
+      const filterNode = audioContextRef.current.createBiquadFilter();
+      if (lane === 0) {
+        // Left lane: slightly lower frequency emphasis
+        filterNode.type = 'lowpass';
+        filterNode.frequency.value = 1200;
+      } else if (lane === 2) {
+        // Right lane: slightly higher frequency emphasis  
+        filterNode.type = 'highpass';
+        filterNode.frequency.value = 800;
+      } else {
+        // Center lane: no filtering for clarity
+        filterNode.type = 'allpass';
+      }
+      
+      // Connect the enhanced audio graph
+      source.connect(filterNode);
+      filterNode.connect(gainNode);
       gainNode.connect(pannerNode);
       pannerNode.connect(audioContextRef.current.destination);
       
@@ -173,7 +190,7 @@ export default function AudioManager() {
       
       source.start();
       
-      console.log(`Honk warning: Lane ${lane}, Pan: ${panValue}, Volume: ${volume.toFixed(2)}, Doppler: ${dopplerFactor.toFixed(2)}`);
+      console.log(`Honk warning: Lane ${lane} (${['LEFT', 'CENTER', 'RIGHT'][lane]}), Pan: ${panValues[lane]}, Volume: ${finalVolume.toFixed(2)}, Doppler: ${dopplerFactor.toFixed(2)}`);
     } catch (error) {
       console.log('Audio play prevented:', error);
     }
