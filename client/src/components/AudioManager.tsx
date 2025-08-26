@@ -41,9 +41,9 @@ export default function AudioManager() {
     audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
 
     // Load background music
-    backgroundMusicRef.current = new Audio('/sounds/background.mp3');
+    backgroundMusicRef.current = new Audio('/attached_assets/\'_1756177926740.mp3');
     backgroundMusicRef.current.loop = true;
-    backgroundMusicRef.current.volume = 0.3;
+    backgroundMusicRef.current.volume = 0.2;
 
     // Load horn sound as AudioBuffer for better control
     const loadHornSound = async () => {
@@ -230,6 +230,22 @@ export default function AudioManager() {
     });
 
   }, [enemyCars, isMuted, gameState]);
+
+  // Control background music based on game state
+  useEffect(() => {
+    if (!backgroundMusicRef.current) return;
+
+    if (gameState === 'playing' && !isMuted) {
+      // Start background music when game starts
+      backgroundMusicRef.current.currentTime = 0;
+      backgroundMusicRef.current.play().catch(error => {
+        console.log('Background music play prevented:', error);
+      });
+    } else {
+      // Stop background music when game ends or is muted
+      backgroundMusicRef.current.pause();
+    }
+  }, [gameState, isMuted]);
 
   // Function to select center horn sound based on probabilities
   const selectCenterHornBuffer = (): AudioBuffer | null => {
