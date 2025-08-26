@@ -33,7 +33,7 @@ export default function DrivingGame() {
     // Spawn enemies periodically
     const now = Date.now();
     const timeSinceLastSpawn = now - lastSpawnTime.current;
-    const spawnInterval = Math.max(4000 - (survivalTime * 8), 1500); // Spawn less frequently overall
+    const spawnInterval = 1500; // Constant spawn rate for consistent audio timing
 
     if (timeSinceLastSpawn > spawnInterval) {
       spawnEnemy();

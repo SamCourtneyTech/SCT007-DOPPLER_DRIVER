@@ -91,7 +91,7 @@ export const useDriving = create<DrivingState>()(
         lane,
         x: lanePositions[lane],
         z: 50, // Start far ahead
-        speed: 15 + (survivalTime / 1000) * 5 // Speed increases much faster over time
+        speed: 20 // Constant speed for consistent audio timing
       };
       
       console.log(`Spawned enemy in lane ${lane} at position ${newEnemy.x}, ${newEnemy.z}`);
