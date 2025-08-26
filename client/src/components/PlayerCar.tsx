@@ -7,7 +7,7 @@ import { useDriving } from '../lib/stores/useDriving';
 
 export default function PlayerCar() {
   const meshRef = useRef<THREE.Mesh>(null);
-  const { playerLane, setPlayerLane, gameState } = useDriving();
+  const { playerLane, playerZ, setPlayerLane, setPlayerZ, gameState } = useDriving();
   const [subscribe] = useKeyboardControls<Controls>();
 
   // Lane positions: -4 (left), 0 (center), 4 (right)
@@ -42,11 +42,23 @@ export default function PlayerCar() {
       }
     );
 
+    const unsubscribeForward = subscribe(
+      state => state.forward,
+      pressed => {
+        if (pressed) {
+          const newZ = playerZ + 0.5; // Move forward
+          setPlayerZ(newZ);
+          console.log(`W/UP ARROW pressed: moved forward to Z position ${newZ.toFixed(1)} (RISKY!)`);
+        }
+      }
+    );
+
     return () => {
       unsubscribeLeft();
       unsubscribeRight();
+      unsubscribeForward();
     };
-  }, [playerLane, setPlayerLane, gameState, subscribe]);
+  }, [playerLane, playerZ, setPlayerLane, setPlayerZ, gameState, subscribe]);
 
   // Smooth lane switching animation
   useFrame((state, delta) => {
@@ -66,7 +78,7 @@ export default function PlayerCar() {
   if (gameState === 'ready') return null;
 
   return (
-    <mesh ref={meshRef} position={[0, 0.6, -8]} castShadow>
+    <mesh ref={meshRef} position={[0, 0.6, playerZ]} castShadow>
       {/* Player car body */}
       <boxGeometry args={[1.5, 0.8, 3]} />
       <meshLambertMaterial color="#ff4444" />

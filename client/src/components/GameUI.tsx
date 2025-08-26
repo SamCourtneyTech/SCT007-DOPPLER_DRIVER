@@ -64,7 +64,7 @@ export default function GameUI() {
             fontSize: '14px',
             textAlign: 'center'
           }}>
-            A/D or ←/→ to switch lanes • Listen for honking!
+            A/D or ←/→ to switch lanes • W/↑ to move forward • Listen for honking!
           </div>
         )}
 
@@ -82,44 +82,49 @@ export default function GameUI() {
           }}>
             <div style={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              padding: '25px',
+              padding: '40px 30px',
               borderRadius: '15px',
               textAlign: 'center',
               width: '90vw',
               maxWidth: '500px',
+              minHeight: '60vh',
               maxHeight: '90vh',
               overflow: 'auto',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center'
             }}>
               <h1 style={{ 
-                fontSize: '28px', 
+                fontSize: '32px', 
                 fontWeight: 'bold', 
-                marginBottom: '18px',
+                marginBottom: '25px',
                 color: '#333',
                 wordWrap: 'break-word'
               }}>
                 Wrong Way Driver
               </h1>
               <p style={{ 
-                fontSize: '16px', 
-                marginBottom: '25px',
+                fontSize: '18px', 
+                marginBottom: '35px',
                 color: '#666',
-                lineHeight: '1.5'
+                lineHeight: '1.6'
               }}>
                 You're driving on the wrong side of the road!<br/>
                 Listen for honking sounds to know which lane has incoming traffic.<br/>
                 Switch lanes quickly to avoid crashes!
               </p>
-              <div style={{ marginBottom: '25px', color: '#888', fontSize: '14px' }}>
+              <div style={{ marginBottom: '35px', color: '#888', fontSize: '16px' }}>
                 <div>🎧 Use headphones for best experience</div>
                 <div>A/D or ←/→ keys to switch lanes</div>
+                <div>W/↑ key to move forward (risky!)</div>
               </div>
               <button
                 onClick={startGame}
                 style={{
-                  fontSize: '18px',
+                  fontSize: '20px',
                   fontWeight: 'bold',
-                  padding: '15px 30px',
+                  padding: '18px 35px',
                   backgroundColor: '#ff4444',
                   color: 'white',
                   border: 'none',

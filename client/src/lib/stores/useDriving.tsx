@@ -14,6 +14,7 @@ export interface EnemyCar {
 interface DrivingState {
   gameState: GameState;
   playerLane: number; // 0 = left, 1 = center, 2 = right
+  playerZ: number; // Player's forward/backward position
   survivalTime: number;
   enemyCars: EnemyCar[];
   
@@ -22,6 +23,7 @@ interface DrivingState {
   resetGame: () => void;
   gameOver: () => void;
   setPlayerLane: (lane: number) => void;
+  setPlayerZ: (z: number) => void;
   updateSurvivalTime: (time: number) => void;
   spawnEnemy: () => void;
   updateEnemies: (delta: number) => void;
@@ -32,6 +34,7 @@ export const useDriving = create<DrivingState>()(
   subscribeWithSelector((set, get) => ({
     gameState: 'ready',
     playerLane: 1, // Start in center lane
+    playerZ: -8, // Starting Z position
     survivalTime: 0,
     enemyCars: [],
     
@@ -41,7 +44,8 @@ export const useDriving = create<DrivingState>()(
         gameState: 'playing',
         survivalTime: 0,
         enemyCars: [],
-        playerLane: 1
+        playerLane: 1,
+        playerZ: -8
       });
     },
     
@@ -51,7 +55,8 @@ export const useDriving = create<DrivingState>()(
         gameState: 'ready',
         survivalTime: 0,
         enemyCars: [],
-        playerLane: 1
+        playerLane: 1,
+        playerZ: -8
       });
     },
     
@@ -62,6 +67,10 @@ export const useDriving = create<DrivingState>()(
     
     setPlayerLane: (lane: number) => {
       set({ playerLane: Math.max(0, Math.min(2, lane)) });
+    },
+    
+    setPlayerZ: (z: number) => {
+      set({ playerZ: Math.max(-15, Math.min(10, z)) }); // Limit forward movement
     },
     
     updateSurvivalTime: (time: number) => {
@@ -106,13 +115,12 @@ export const useDriving = create<DrivingState>()(
     },
     
     checkCollisions: () => {
-      const { enemyCars, playerLane, gameState } = get();
+      const { enemyCars, playerLane, playerZ, gameState } = get();
       
       if (gameState !== 'playing') return;
       
       const lanePositions = [-4, 0, 4];
       const playerX = lanePositions[playerLane];
-      const playerZ = -8; // Player's fixed Z position
       
       // Check collision with each enemy
       for (const enemy of enemyCars) {

@@ -8,12 +8,14 @@ import DrivingGame from "./components/DrivingGame";
 export enum Controls {
   left = 'left',
   right = 'right',
+  forward = 'forward',
   restart = 'restart',
 }
 
 const controls = [
   { name: Controls.left, keys: ['KeyA', 'ArrowLeft'] },
   { name: Controls.right, keys: ['KeyD', 'ArrowRight'] },
+  { name: Controls.forward, keys: ['KeyW', 'ArrowUp'] },
   { name: Controls.restart, keys: ['KeyR'] },
 ];
 
