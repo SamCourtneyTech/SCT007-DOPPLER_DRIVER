@@ -26,6 +26,11 @@ export default function AudioManager() {
     right2: AudioBuffer | null;
     right3: AudioBuffer | null;
   }>({ right1: null, right2: null, right3: null });
+  const leftHornBuffersRef = useRef<{
+    left1: AudioBuffer | null;
+    left2: AudioBuffer | null;
+    left3: AudioBuffer | null;
+  }>({ left1: null, left2: null, left3: null });
   const activeSoundsRef = useRef<Map<number, ActiveSound>>(new Map());
   const lastHonkTimeRef = useRef<Map<number, number>>(new Map());
   const previousCarPositionsRef = useRef<Map<string, number>>(new Map());
@@ -52,7 +57,7 @@ export default function AudioManager() {
       }
     };
 
-    // Load center and right lane horn sounds with different variations
+    // Load center, right, and left lane horn sounds with different variations
     const loadVariationHornSounds = async () => {
       try {
         // Load center lane sounds
@@ -67,6 +72,13 @@ export default function AudioManager() {
           'CarHonkRight1_1756176347426.mp3',
           'CarHonkRight2_1756176405172.mp3',
           'CarHonkRight3_1756176414004.mp3'
+        ];
+
+        // Load left lane sounds
+        const leftFiles = [
+          'CarHonkLeft1_1756176442069.mp3',
+          'CarHonkLeft2_1756176448244.mp3',
+          'CarHonkLeft3_1756176457203.mp3'
         ];
 
         // Load center lane sounds
@@ -111,7 +123,28 @@ export default function AudioManager() {
           console.log(`Right sound ${i + 1} loaded successfully`);
         }
 
-        console.log('Center and right horn sound variations loaded successfully');
+        // Load left lane sounds
+        for (let i = 0; i < leftFiles.length; i++) {
+          console.log(`Loading left sound ${i + 1}: ${leftFiles[i]}`);
+          const response = await fetch(`/attached_assets/${leftFiles[i]}`);
+          
+          if (!response.ok) {
+            console.error(`Failed to fetch ${leftFiles[i]}: ${response.status} ${response.statusText}`);
+            continue;
+          }
+          
+          const arrayBuffer = await response.arrayBuffer();
+          console.log(`Left sound ${i + 1} buffer size:`, arrayBuffer.byteLength);
+          const audioBuffer = await audioContextRef.current!.decodeAudioData(arrayBuffer);
+          
+          if (i === 0) leftHornBuffersRef.current.left1 = audioBuffer;
+          else if (i === 1) leftHornBuffersRef.current.left2 = audioBuffer;
+          else leftHornBuffersRef.current.left3 = audioBuffer;
+          
+          console.log(`Left sound ${i + 1} loaded successfully`);
+        }
+
+        console.log('Center, right, and left horn sound variations loaded successfully');
       } catch (error) {
         console.log('Failed to load horn sound variations:', error);
       }
@@ -226,6 +259,22 @@ export default function AudioManager() {
     }
   };
 
+  // Function to select left horn sound based on probabilities  
+  const selectLeftHornBuffer = (): AudioBuffer | null => {
+    const random = Math.random();
+    
+    if (random < 0.80) {
+      // 80% chance for CarHonkLeft1
+      return leftHornBuffersRef.current.left1;
+    } else if (random < 0.95) {
+      // 15% chance for CarHonkLeft2 (80% + 15% = 95%)
+      return leftHornBuffersRef.current.left2;
+    } else {
+      // 5% chance for CarHonkLeft3 (remaining 5%)
+      return leftHornBuffersRef.current.left3;
+    }
+  };
+
   const playHonkSoundWithDoppler = (lane: number, distance: number, velocity: number) => {
     if (!audioContextRef.current) return;
 
@@ -233,8 +282,8 @@ export default function AudioManager() {
     let selectedBuffer: AudioBuffer | null = null;
     
     if (lane === 0) {
-      // Left lane - use original horn sound
-      selectedBuffer = hornBufferRef.current;
+      // Left lane - use probability-based selection
+      selectedBuffer = selectLeftHornBuffer();
     } else if (lane === 1) {
       // Center lane - use probability-based selection
       selectedBuffer = selectCenterHornBuffer();
@@ -316,7 +365,11 @@ export default function AudioManager() {
       
       // Log which sound variant is being used
       let soundVariant = 'original';
-      if (lane === 1) {
+      if (lane === 0) {
+        if (selectedBuffer === leftHornBuffersRef.current.left1) soundVariant = 'left1';
+        else if (selectedBuffer === leftHornBuffersRef.current.left2) soundVariant = 'left2';
+        else if (selectedBuffer === leftHornBuffersRef.current.left3) soundVariant = 'left3';
+      } else if (lane === 1) {
         if (selectedBuffer === centerHornBuffersRef.current.center1) soundVariant = 'center1';
         else if (selectedBuffer === centerHornBuffersRef.current.center2) soundVariant = 'center2';
         else if (selectedBuffer === centerHornBuffersRef.current.center3) soundVariant = 'center3';

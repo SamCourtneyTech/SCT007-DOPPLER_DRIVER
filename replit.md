@@ -34,9 +34,12 @@ Preferred communication style: Simple, everyday language.
 - **Migration System**: Drizzle Kit for schema changes and database migrations
 
 ## Audio System
-- **Web Audio API**: Browser-native audio handling for sound effects
+- **Web Audio API**: Browser-native audio handling with spatial audio, doppler effects, and frequency filtering
 - **Zustand Audio Store**: Centralized audio state management with mute controls
-- **Dynamic Sound Loading**: Runtime audio file loading for background music and effects
+- **Dynamic Sound Loading**: Runtime audio file loading for background music and lane-specific horn variations
+- **Probability-based Sound Selection**: Each lane uses 3 horn variations with 80%/15%/5% probability distribution
+- **Spatial Audio Positioning**: Enhanced stereo panning with lane-specific frequency filtering for audio clarity
+- **Doppler Effect Implementation**: Real-time pitch adjustment based on enemy car velocity for immersive audio cues
 
 ## Development Environment
 - **Hot Reloading**: Vite development server with instant updates
