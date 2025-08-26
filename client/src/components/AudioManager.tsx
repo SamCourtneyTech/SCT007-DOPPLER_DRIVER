@@ -32,7 +32,7 @@ export default function AudioManager() {
     left3: AudioBuffer | null;
   }>({ left1: null, left2: null, left3: null });
   const activeSoundsRef = useRef<Map<string, ActiveSound>>(new Map()); // Use unique IDs instead of lane numbers
-  const lastHonkTimeRef = useRef<Map<number, number>>(new Map());
+  const carHonkedRef = useRef<Set<string>>(new Set()); // Track which cars have already honked
   const previousCarPositionsRef = useRef<Map<string, number>>(new Map());
 
   // Initialize audio context and load sounds
@@ -175,47 +175,32 @@ export default function AudioManager() {
 
 
 
-  // Play spatial honking warnings with doppler effect
+  // Play spatial honking warnings - one sound per car
   useEffect(() => {
-    if (!audioContextRef.current || !hornBufferRef.current || isMuted || gameState !== 'playing') return;
-
-    const currentTime = audioContextRef.current.currentTime;
-    const HONK_COOLDOWN = 1.2; // Prevent audio doubling with longer cooldown
-    const MIN_CAR_DISTANCE = 15; // Increased distance to prevent too many overlapping sounds
+    if (!audioContextRef.current || isMuted || gameState !== 'playing') return;
 
     enemyCars.forEach(enemy => {
-      // Warn about cars that are approaching - increased range for earlier warning
-      if (enemy.z > -35 && enemy.z < 5) {
-        const lastHonkTime = lastHonkTimeRef.current.get(enemy.lane) || 0;
+      // Check if this car is in warning range and hasn't honked yet
+      if (enemy.z > -35 && enemy.z < 10 && !carHonkedRef.current.has(enemy.id)) {
+        // Calculate velocity for volume adjustment
+        const previousZ = previousCarPositionsRef.current.get(enemy.id) || enemy.z;
+        const velocity = previousZ - enemy.z; // Positive = approaching
         
-        // Check if enough time has passed since last honk in this lane
-        if (currentTime - lastHonkTime > HONK_COOLDOWN) {
-          // Find the closest car in this lane (priority to closest)
-          const carsInLane = enemyCars.filter(car => car.lane === enemy.lane);
-          const closestCar = carsInLane.reduce((closest, car) => 
-            Math.abs(car.z) < Math.abs(closest.z) ? car : closest, enemy
-          );
-          
-          // Only play sound for the closest car in each lane
-          if (closestCar.id === enemy.id) {
-            // Calculate velocity for doppler effect
-            const previousZ = previousCarPositionsRef.current.get(enemy.id) || enemy.z;
-            const velocity = previousZ - enemy.z; // Positive = approaching
-            
-            playHonkSound(enemy.lane, enemy.z, velocity);
-            lastHonkTimeRef.current.set(enemy.lane, currentTime);
-          }
-        }
+        // Mark this car as having honked to prevent double audio
+        carHonkedRef.current.add(enemy.id);
         
-        // Update car position for next frame
-        previousCarPositionsRef.current.set(enemy.id, enemy.z);
+        playHonkSound(enemy.lane, enemy.z, velocity);
       }
+      
+      // Update car position for next frame
+      previousCarPositionsRef.current.set(enemy.id, enemy.z);
     });
 
-    // Clean up tracking for cars that are no longer in range
+    // Clean up tracking for cars that are no longer active
     const activeCarIds = new Set(enemyCars.map(car => car.id));
-    Array.from(previousCarPositionsRef.current.keys()).forEach(carId => {
+    Array.from(carHonkedRef.current.values()).forEach(carId => {
       if (!activeCarIds.has(carId)) {
+        carHonkedRef.current.delete(carId);
         previousCarPositionsRef.current.delete(carId);
       }
     });
