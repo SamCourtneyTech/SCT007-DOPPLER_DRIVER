@@ -15,6 +15,7 @@ export default function AudioManager() {
   const { isMuted } = useAudio();
   const audioContextRef = useRef<AudioContext | null>(null);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
+  const engineSoundRef = useRef<HTMLAudioElement | null>(null);
   const hornBufferRef = useRef<AudioBuffer | null>(null);
   const centerHornBuffersRef = useRef<{
     center1: AudioBuffer | null;
@@ -44,6 +45,11 @@ export default function AudioManager() {
     backgroundMusicRef.current = new Audio('/attached_assets/\'_1756177926740.mp3');
     backgroundMusicRef.current.loop = true;
     backgroundMusicRef.current.volume = 0.5; // Increased background music volume
+
+    // Load engine sound for continuous playback
+    engineSoundRef.current = new Audio('/attached_assets/CarDrivingSustaied_1756181540499.mp3');
+    engineSoundRef.current.loop = true;
+    engineSoundRef.current.volume = 0.05; // Very quiet engine sound
 
     // Load horn sound as AudioBuffer for better control
     const loadHornSound = async () => {
@@ -167,6 +173,9 @@ export default function AudioManager() {
       if (backgroundMusicRef.current) {
         backgroundMusicRef.current.pause();
       }
+      if (engineSoundRef.current) {
+        engineSoundRef.current.pause();
+      }
       if (audioContextRef.current) {
         audioContextRef.current.close();
       }
@@ -207,9 +216,9 @@ export default function AudioManager() {
 
   }, [enemyCars, isMuted, gameState]);
 
-  // Control background music based on game state
+  // Control background music and engine sound based on game state
   useEffect(() => {
-    if (!backgroundMusicRef.current) return;
+    if (!backgroundMusicRef.current || !engineSoundRef.current) return;
 
     if (gameState === 'playing' && !isMuted) {
       // Start background music when game starts
@@ -217,9 +226,16 @@ export default function AudioManager() {
       backgroundMusicRef.current.play().catch(error => {
         console.log('Background music play prevented:', error);
       });
+      
+      // Start engine sound when game starts
+      engineSoundRef.current.currentTime = 0;
+      engineSoundRef.current.play().catch(error => {
+        console.log('Engine sound play prevented:', error);
+      });
     } else {
-      // Stop background music when game ends or is muted
+      // Stop background music and engine sound when game ends or is muted
       backgroundMusicRef.current.pause();
+      engineSoundRef.current.pause();
     }
   }, [gameState, isMuted]);
 
