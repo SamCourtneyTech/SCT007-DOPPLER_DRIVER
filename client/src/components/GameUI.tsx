@@ -27,44 +27,21 @@ export default function GameUI() {
         fontFamily: 'Inter, sans-serif',
       }}>
         
-        {/* Game Info - Top */}
+        {/* Timer - Top Left */}
         {gameState === 'playing' && (
           <div style={{
             position: 'absolute',
             top: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            left: '20px',
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
             color: 'white',
-            padding: '15px 25px',
-            borderRadius: '10px',
-            textAlign: 'center',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-          }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '5px' }}>
-              {formatTime(survivalTime)}
-            </div>
-            <div style={{ fontSize: '14px', opacity: 0.8 }}>
-              Lane: {playerLane === 0 ? 'LEFT' : playerLane === 1 ? 'CENTER' : 'RIGHT'}
-            </div>
-          </div>
-        )}
-
-        {/* Controls Info - Bottom */}
-        {gameState === 'playing' && (
-          <div style={{
-            position: 'absolute',
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            color: 'white',
-            padding: '10px 20px',
+            padding: '12px 18px',
             borderRadius: '8px',
-            fontSize: '14px',
-            textAlign: 'center'
+            fontSize: '20px',
+            fontWeight: 'bold',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
           }}>
-            A/D or ←/→ to switch lanes • W/↑ to move forward • Listen for honking!
+            {formatTime(survivalTime)}
           </div>
         )}
 
@@ -102,22 +79,21 @@ export default function GameUI() {
                 color: '#333',
                 wordWrap: 'break-word'
               }}>
-                Wrong Way Driver
+                Doppler Driver
               </h1>
               <p style={{ 
                 fontSize: '18px', 
-                marginBottom: '35px',
+                marginBottom: '0px',
                 color: '#666',
                 lineHeight: '1.6'
               }}>
-                You're driving on the wrong side of the road!<br/>
-                Listen for honking sounds to know which lane has incoming traffic.<br/>
-                Switch lanes quickly to avoid crashes!
+              
               </p>
               <div style={{ marginBottom: '35px', color: '#888', fontSize: '16px' }}>
-                <div>🎧 Use headphones for best experience</div>
+                <div> 
+                </div>
                 <div>A/D or ←/→ keys to switch lanes</div>
-                <div>W/↑ key to move forward (risky!)</div>
+                <div>W/↑ key to move forward (The cops will gain on you)</div>
               </div>
               <button
                 onClick={startGame}
