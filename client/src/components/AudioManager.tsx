@@ -31,7 +31,7 @@ export default function AudioManager() {
     left2: AudioBuffer | null;
     left3: AudioBuffer | null;
   }>({ left1: null, left2: null, left3: null });
-  const activeSoundsRef = useRef<Map<number, ActiveSound>>(new Map());
+  const activeSoundsRef = useRef<Map<string, ActiveSound>>(new Map()); // Use unique IDs instead of lane numbers
   const lastHonkTimeRef = useRef<Map<number, number>>(new Map());
   const previousCarPositionsRef = useRef<Map<string, number>>(new Map());
 
@@ -156,7 +156,11 @@ export default function AudioManager() {
     return () => {
       // Stop all active sounds
       activeSoundsRef.current.forEach(sound => {
-        sound.source.stop();
+        try {
+          sound.source.stop();
+        } catch (e) {
+          // Sound may have already ended
+        }
       });
       activeSoundsRef.current.clear();
       
@@ -295,39 +299,41 @@ export default function AudioManager() {
     if (!selectedBuffer) return;
 
     try {
-      // Stop any existing sound in this lane
-      const existingSound = activeSoundsRef.current.get(lane);
-      if (existingSound) {
-        existingSound.source.stop();
-        activeSoundsRef.current.delete(lane);
-      }
+      // Generate unique ID for this sound instance
+      const soundId = `${lane}_${Date.now()}_${Math.random()}`;
 
       const source = audioContextRef.current.createBufferSource();
       const gainNode = audioContextRef.current.createGain();
       
       source.buffer = selectedBuffer;
       
-      // Simple volume control based on distance
-      const baseVolume = Math.max(0.3, Math.min(0.8, (30 - Math.abs(distance)) / 30));
-      gainNode.gain.value = baseVolume;
+      // Calculate volume based on distance and number of active sounds to prevent distortion
+      const activeCount = activeSoundsRef.current.size;
+      const distanceVolume = Math.max(0.2, Math.min(0.6, (30 - Math.abs(distance)) / 30));
+      
+      // Reduce volume when multiple sounds are playing to prevent distortion
+      const volumeMultiplier = activeCount > 0 ? Math.max(0.3, 1.0 / Math.sqrt(activeCount + 1)) : 1.0;
+      const finalVolume = distanceVolume * volumeMultiplier;
+      
+      gainNode.gain.value = finalVolume;
       
       // Simple audio graph - no panning or filtering since audio is preprocessed
       source.connect(gainNode);
       gainNode.connect(audioContextRef.current.destination);
       
-      // Track this sound (simplified)
+      // Track this sound with unique ID
       const activeSound: ActiveSound = {
         source,
         gainNode,
-        pannerNode: null as any, // Not used anymore
+        pannerNode: null,
         lane,
         startTime: audioContextRef.current.currentTime
       };
-      activeSoundsRef.current.set(lane, activeSound);
+      activeSoundsRef.current.set(soundId, activeSound);
       
-      // Auto-cleanup when sound ends
+      // Auto-cleanup when sound ends - let it play to completion
       source.onended = () => {
-        activeSoundsRef.current.delete(lane);
+        activeSoundsRef.current.delete(soundId);
       };
       
       source.start();
@@ -348,7 +354,7 @@ export default function AudioManager() {
         else if (selectedBuffer === rightHornBuffersRef.current.right3) soundVariant = 'right3';
       }
       
-      console.log(`Honk warning: Lane ${lane} (${['LEFT', 'CENTER', 'RIGHT'][lane]}), Sound: ${soundVariant}, Volume: ${baseVolume.toFixed(2)}`);
+      console.log(`Honk warning: Lane ${lane} (${['LEFT', 'CENTER', 'RIGHT'][lane]}), Sound: ${soundVariant}, Volume: ${finalVolume.toFixed(2)}, Active: ${activeCount + 1}`);
     } catch (error) {
       console.log('Audio play prevented:', error);
     }
