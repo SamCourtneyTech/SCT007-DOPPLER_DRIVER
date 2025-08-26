@@ -302,14 +302,14 @@ export default function AudioManager() {
     let selectedBuffer: AudioBuffer | null = null;
     
     if (lane === 0) {
-      // Left lane - use probability-based selection
-      selectedBuffer = selectLeftHornBuffer();
+      // Left lane (position -4) - use RIGHT audio (car approaching from player's right perspective)
+      selectedBuffer = selectRightHornBuffer();
     } else if (lane === 1) {
-      // Center lane - use probability-based selection
+      // Center lane - use center audio
       selectedBuffer = selectCenterHornBuffer();
     } else if (lane === 2) {
-      // Right lane - use probability-based selection
-      selectedBuffer = selectRightHornBuffer();
+      // Right lane (position 4) - use LEFT audio (car approaching from player's left perspective)
+      selectedBuffer = selectLeftHornBuffer();
     }
 
     if (!selectedBuffer) return;
@@ -354,20 +354,22 @@ export default function AudioManager() {
       
       source.start();
       
-      // Log which sound variant is being used
+      // Log which sound variant is being used (corrected for perspective)
       let soundVariant = 'original';
       if (lane === 0) {
-        if (selectedBuffer === leftHornBuffersRef.current.left1) soundVariant = 'left1';
-        else if (selectedBuffer === leftHornBuffersRef.current.left2) soundVariant = 'left2';
-        else if (selectedBuffer === leftHornBuffersRef.current.left3) soundVariant = 'left3';
+        // Lane 0 uses right audio from player's perspective
+        if (selectedBuffer === rightHornBuffersRef.current.right1) soundVariant = 'right1';
+        else if (selectedBuffer === rightHornBuffersRef.current.right2) soundVariant = 'right2';
+        else if (selectedBuffer === rightHornBuffersRef.current.right3) soundVariant = 'right3';
       } else if (lane === 1) {
         if (selectedBuffer === centerHornBuffersRef.current.center1) soundVariant = 'center1';
         else if (selectedBuffer === centerHornBuffersRef.current.center2) soundVariant = 'center2';
         else if (selectedBuffer === centerHornBuffersRef.current.center3) soundVariant = 'center3';
       } else if (lane === 2) {
-        if (selectedBuffer === rightHornBuffersRef.current.right1) soundVariant = 'right1';
-        else if (selectedBuffer === rightHornBuffersRef.current.right2) soundVariant = 'right2';
-        else if (selectedBuffer === rightHornBuffersRef.current.right3) soundVariant = 'right3';
+        // Lane 2 uses left audio from player's perspective
+        if (selectedBuffer === leftHornBuffersRef.current.left1) soundVariant = 'left1';
+        else if (selectedBuffer === leftHornBuffersRef.current.left2) soundVariant = 'left2';
+        else if (selectedBuffer === leftHornBuffersRef.current.left3) soundVariant = 'left3';
       }
       
       console.log(`Honk warning: Lane ${lane} (${['LEFT', 'CENTER', 'RIGHT'][lane]}), Sound: ${soundVariant}, Volume: ${finalVolume.toFixed(2)}, Active: ${activeCount + 1}`);
