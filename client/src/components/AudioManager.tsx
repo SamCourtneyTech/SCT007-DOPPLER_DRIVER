@@ -43,7 +43,7 @@ export default function AudioManager() {
     // Load background music
     backgroundMusicRef.current = new Audio('/attached_assets/\'_1756177926740.mp3');
     backgroundMusicRef.current.loop = true;
-    backgroundMusicRef.current.volume = 0.2;
+    backgroundMusicRef.current.volume = 0.5; // Increased background music volume
 
     // Load horn sound as AudioBuffer for better control
     const loadHornSound = async () => {
@@ -301,10 +301,10 @@ export default function AudioManager() {
       
       // Calculate volume based on distance and number of active sounds to prevent distortion
       const activeCount = activeSoundsRef.current.size;
-      const distanceVolume = Math.max(0.2, Math.min(0.6, (30 - Math.abs(distance)) / 30));
+      const distanceVolume = Math.max(0.1, Math.min(0.3, (30 - Math.abs(distance)) / 30)); // Reduced horn volume
       
       // Reduce volume when multiple sounds are playing to prevent distortion
-      const volumeMultiplier = activeCount > 0 ? Math.max(0.3, 1.0 / Math.sqrt(activeCount + 1)) : 1.0;
+      const volumeMultiplier = activeCount > 0 ? Math.max(0.2, 1.0 / Math.sqrt(activeCount + 1)) : 1.0;
       const finalVolume = distanceVolume * volumeMultiplier;
       
       gainNode.gain.value = finalVolume;
