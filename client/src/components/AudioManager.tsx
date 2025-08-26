@@ -227,14 +227,14 @@ export default function AudioManager() {
   const selectCenterHornBuffer = (): AudioBuffer | null => {
     const random = Math.random();
     
-    if (random < 0.80) {
-      // 80% chance for CarHonkCenter1
+    if (random < 0.40) {
+      // 40% chance for CarHonkCenter1
       return centerHornBuffersRef.current.center1;
-    } else if (random < 0.95) {
-      // 15% chance for CarHonkCenter2 (80% + 15% = 95%)
+    } else if (random < 0.60) {
+      // 20% chance for CarHonkCenter2 (40% + 20% = 60%)
       return centerHornBuffersRef.current.center2;
     } else {
-      // 5% chance for CarHonkCenter3 (remaining 5%)
+      // 40% chance for CarHonkCenter3 (remaining 40%)
       return centerHornBuffersRef.current.center3;
     }
   };
@@ -243,14 +243,14 @@ export default function AudioManager() {
   const selectRightHornBuffer = (): AudioBuffer | null => {
     const random = Math.random();
     
-    if (random < 0.80) {
-      // 80% chance for CarHonkRight1
+    if (random < 0.40) {
+      // 40% chance for CarHonkRight1
       return rightHornBuffersRef.current.right1;
-    } else if (random < 0.95) {
-      // 15% chance for CarHonkRight2 (80% + 15% = 95%)
+    } else if (random < 0.60) {
+      // 20% chance for CarHonkRight2 (40% + 20% = 60%)
       return rightHornBuffersRef.current.right2;
     } else {
-      // 5% chance for CarHonkRight3 (remaining 5%)
+      // 40% chance for CarHonkRight3 (remaining 40%)
       return rightHornBuffersRef.current.right3;
     }
   };
@@ -259,14 +259,14 @@ export default function AudioManager() {
   const selectLeftHornBuffer = (): AudioBuffer | null => {
     const random = Math.random();
     
-    if (random < 0.80) {
-      // 80% chance for CarHonkLeft1
+    if (random < 0.40) {
+      // 40% chance for CarHonkLeft1
       return leftHornBuffersRef.current.left1;
-    } else if (random < 0.95) {
-      // 15% chance for CarHonkLeft2 (80% + 15% = 95%)
+    } else if (random < 0.60) {
+      // 20% chance for CarHonkLeft2 (40% + 20% = 60%)
       return leftHornBuffersRef.current.left2;
     } else {
-      // 5% chance for CarHonkLeft3 (remaining 5%)
+      // 40% chance for CarHonkLeft3 (remaining 40%)
       return leftHornBuffersRef.current.left3;
     }
   };
