@@ -82,40 +82,42 @@ export default function GameUI() {
           }}>
             <div style={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              padding: '40px',
+              padding: '20px',
               borderRadius: '15px',
               textAlign: 'center',
-              maxWidth: '500px',
+              maxWidth: '350px',
+              maxHeight: '80vh',
+              overflow: 'auto',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
             }}>
               <h1 style={{ 
-                fontSize: '36px', 
+                fontSize: '24px', 
                 fontWeight: 'bold', 
-                marginBottom: '20px',
+                marginBottom: '15px',
                 color: '#333'
               }}>
                 Wrong Way Driver
               </h1>
               <p style={{ 
-                fontSize: '18px', 
-                marginBottom: '30px',
+                fontSize: '14px', 
+                marginBottom: '20px',
                 color: '#666',
-                lineHeight: '1.6'
+                lineHeight: '1.4'
               }}>
                 You're driving on the wrong side of the road!<br/>
                 Listen for honking sounds to know which lane has incoming traffic.<br/>
                 Switch lanes quickly to avoid crashes!
               </p>
-              <div style={{ marginBottom: '30px', color: '#888', fontSize: '14px' }}>
+              <div style={{ marginBottom: '20px', color: '#888', fontSize: '12px' }}>
                 <div>🎧 Use headphones for best experience</div>
                 <div>A/D or ←/→ keys to switch lanes</div>
               </div>
               <button
                 onClick={startGame}
                 style={{
-                  fontSize: '20px',
+                  fontSize: '16px',
                   fontWeight: 'bold',
-                  padding: '15px 30px',
+                  padding: '12px 24px',
                   backgroundColor: '#ff4444',
                   color: 'white',
                   border: 'none',
@@ -155,30 +157,30 @@ export default function GameUI() {
           }}>
             <div style={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              padding: '40px',
+              padding: '20px',
               borderRadius: '15px',
               textAlign: 'center',
-              maxWidth: '400px',
+              maxWidth: '350px',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
             }}>
               <h2 style={{ 
-                fontSize: '32px', 
+                fontSize: '24px', 
                 fontWeight: 'bold', 
-                marginBottom: '20px',
+                marginBottom: '15px',
                 color: '#ff4444'
               }}>
                 CRASHED!
               </h2>
               <p style={{ 
-                fontSize: '20px', 
+                fontSize: '16px', 
                 marginBottom: '10px',
                 color: '#333'
               }}>
                 Survival Time: {formatTime(survivalTime)}
               </p>
               <p style={{ 
-                fontSize: '14px', 
-                marginBottom: '30px',
+                fontSize: '12px', 
+                marginBottom: '20px',
                 color: '#666'
               }}>
                 You got caught by the police or crashed into traffic!
@@ -186,9 +188,9 @@ export default function GameUI() {
               <button
                 onClick={resetGame}
                 style={{
-                  fontSize: '18px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
-                  padding: '12px 25px',
+                  padding: '10px 20px',
                   backgroundColor: '#4444ff',
                   color: 'white',
                   border: 'none',
@@ -214,29 +216,6 @@ export default function GameUI() {
           </div>
         )}
 
-        {/* Mute Button */}
-        <button
-          onClick={toggleMute}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50%',
-            width: '50px',
-            height: '50px',
-            fontSize: '20px',
-            cursor: 'pointer',
-            pointerEvents: 'auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          {isMuted ? '🔇' : '🔊'}
-        </button>
       </div>
     </Html>
   );
