@@ -33,20 +33,20 @@ export default function EnemyCar({ enemy }: EnemyCarProps) {
         <meshLambertMaterial color="#333333" />
       </mesh>
       
-      {/* Wheels - rotated 45 degrees */}
-      <mesh position={[-0.7, -0.25, 0.8]} rotation={[0, 0, Math.PI / 4]}>
+      {/* Wheels - rotated 67.5 degrees (45 + 22.5 to the right) */}
+      <mesh position={[-0.7, -0.25, 0.8]} rotation={[0, 0, Math.PI / 4 + Math.PI / 8]}>
         <cylinderGeometry args={[0.25, 0.25, 0.15]} />
         <meshLambertMaterial color="#222222" />
       </mesh>
-      <mesh position={[0.7, -0.25, 0.8]} rotation={[0, 0, Math.PI / 4]}>
+      <mesh position={[0.7, -0.25, 0.8]} rotation={[0, 0, Math.PI / 4 + Math.PI / 8]}>
         <cylinderGeometry args={[0.25, 0.25, 0.15]} />
         <meshLambertMaterial color="#222222" />
       </mesh>
-      <mesh position={[-0.7, -0.25, -0.8]} rotation={[0, 0, Math.PI / 4]}>
+      <mesh position={[-0.7, -0.25, -0.8]} rotation={[0, 0, Math.PI / 4 + Math.PI / 8]}>
         <cylinderGeometry args={[0.25, 0.25, 0.15]} />
         <meshLambertMaterial color="#222222" />
       </mesh>
-      <mesh position={[0.7, -0.25, -0.8]} rotation={[0, 0, Math.PI / 4]}>
+      <mesh position={[0.7, -0.25, -0.8]} rotation={[0, 0, Math.PI / 4 + Math.PI / 8]}>
         <cylinderGeometry args={[0.25, 0.25, 0.15]} />
         <meshLambertMaterial color="#222222" />
       </mesh>
