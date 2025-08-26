@@ -2,13 +2,23 @@ import React, { useEffect, useRef } from 'react';
 import { useDriving } from '../lib/stores/useDriving';
 import { useAudio } from '../lib/stores/useAudio';
 
+interface ActiveSound {
+  source: AudioBufferSourceNode;
+  gainNode: GainNode;
+  pannerNode: StereoPannerNode;
+  lane: number;
+  startTime: number;
+}
+
 export default function AudioManager() {
   const { enemyCars, gameState } = useDriving();
   const { isMuted } = useAudio();
   const audioContextRef = useRef<AudioContext | null>(null);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
-  const honkSoundsRef = useRef<{ [key: string]: HTMLAudioElement }>({});
-  const playedWarnings = useRef<Set<string>>(new Set());
+  const hornBufferRef = useRef<AudioBuffer | null>(null);
+  const activeSoundsRef = useRef<Map<number, ActiveSound>>(new Map());
+  const lastHonkTimeRef = useRef<Map<number, number>>(new Map());
+  const previousCarPositionsRef = useRef<Map<string, number>>(new Map());
 
   // Initialize audio context and load sounds
   useEffect(() => {
@@ -20,14 +30,27 @@ export default function AudioManager() {
     backgroundMusicRef.current.loop = true;
     backgroundMusicRef.current.volume = 0.3;
 
-    // Load honking sounds for each lane
-    honkSoundsRef.current = {
-      '0': new Audio('/sounds/horn.mp3'), // Use custom horn sound
-      '1': new Audio('/sounds/horn.mp3'),
-      '2': new Audio('/sounds/horn.mp3'),
+    // Load horn sound as AudioBuffer for better control
+    const loadHornSound = async () => {
+      try {
+        const response = await fetch('/sounds/horn.mp3');
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContextRef.current!.decodeAudioData(arrayBuffer);
+        hornBufferRef.current = audioBuffer;
+      } catch (error) {
+        console.log('Failed to load horn sound:', error);
+      }
     };
 
+    loadHornSound();
+
     return () => {
+      // Stop all active sounds
+      activeSoundsRef.current.forEach(sound => {
+        sound.source.stop();
+      });
+      activeSoundsRef.current.clear();
+      
       if (backgroundMusicRef.current) {
         backgroundMusicRef.current.pause();
       }
@@ -48,56 +71,109 @@ export default function AudioManager() {
     }
   }, [gameState, isMuted]);
 
-  // Play spatial honking warnings
+  // Play spatial honking warnings with doppler effect
   useEffect(() => {
-    if (!audioContextRef.current || isMuted || gameState !== 'playing') return;
+    if (!audioContextRef.current || !hornBufferRef.current || isMuted || gameState !== 'playing') return;
+
+    const currentTime = audioContextRef.current.currentTime;
+    const HONK_COOLDOWN = 1.5; // Seconds between honks per lane
+    const MIN_CAR_DISTANCE = 8; // Minimum distance between cars in same lane to honk
 
     enemyCars.forEach(enemy => {
-      // Only warn about cars that are approaching (close enough to be dangerous)
-      if (enemy.z > -25 && enemy.z < -3) {
-        const warningId = `${enemy.id}-${Math.floor(enemy.z / 3)}`;
+      // Only warn about cars that are approaching and close enough to be dangerous
+      if (enemy.z > -30 && enemy.z < 0) {
+        const lastHonkTime = lastHonkTimeRef.current.get(enemy.lane) || 0;
         
-        if (!playedWarnings.current.has(warningId)) {
-          playedWarnings.current.add(warningId);
-          playHonkSound(enemy.lane, enemy.z);
+        // Check if enough time has passed since last honk in this lane
+        if (currentTime - lastHonkTime > HONK_COOLDOWN) {
+          // Check if there's another car too close in the same lane
+          const tooCloseToAnother = enemyCars.some(otherCar => 
+            otherCar.id !== enemy.id && 
+            otherCar.lane === enemy.lane && 
+            Math.abs(otherCar.z - enemy.z) < MIN_CAR_DISTANCE &&
+            lastHonkTimeRef.current.has(otherCar.lane)
+          );
+          
+          if (!tooCloseToAnother) {
+            // Calculate velocity for doppler effect
+            const previousZ = previousCarPositionsRef.current.get(enemy.id) || enemy.z;
+            const velocity = previousZ - enemy.z; // Positive = approaching
+            
+            playHonkSoundWithDoppler(enemy.lane, enemy.z, velocity);
+            lastHonkTimeRef.current.set(enemy.lane, currentTime);
+          }
         }
+        
+        // Update car position for next frame
+        previousCarPositionsRef.current.set(enemy.id, enemy.z);
       }
     });
 
-    // Clean up old warnings
-    const currentWarnings = new Set<string>();
-    enemyCars.forEach(enemy => {
-      if (enemy.z > -20 && enemy.z < -5) {
-        currentWarnings.add(`${enemy.id}-${Math.floor(enemy.z)}`);
+    // Clean up tracking for cars that are no longer in range
+    const activeCarIds = new Set(enemyCars.map(car => car.id));
+    Array.from(previousCarPositionsRef.current.keys()).forEach(carId => {
+      if (!activeCarIds.has(carId)) {
+        previousCarPositionsRef.current.delete(carId);
       }
     });
-    playedWarnings.current = currentWarnings;
 
   }, [enemyCars, isMuted, gameState]);
 
-  const playHonkSound = (lane: number, distance: number) => {
-    if (!audioContextRef.current || !honkSoundsRef.current[lane.toString()]) return;
+  const playHonkSoundWithDoppler = (lane: number, distance: number, velocity: number) => {
+    if (!audioContextRef.current || !hornBufferRef.current) return;
 
     try {
-      const audio = honkSoundsRef.current[lane.toString()].cloneNode() as HTMLAudioElement;
-      const source = audioContextRef.current.createMediaElementSource(audio);
-      const panner = audioContextRef.current.createStereoPanner();
+      // Stop any existing sound in this lane
+      const existingSound = activeSoundsRef.current.get(lane);
+      if (existingSound) {
+        existingSound.source.stop();
+        activeSoundsRef.current.delete(lane);
+      }
+
+      const source = audioContextRef.current.createBufferSource();
+      const gainNode = audioContextRef.current.createGain();
+      const pannerNode = audioContextRef.current.createStereoPanner();
+      
+      source.buffer = hornBufferRef.current;
       
       // Set spatial position based on lane
       // Lane 0 (left) = -1, Lane 1 (center) = 0, Lane 2 (right) = 1
       const panValue = (lane - 1);
-      panner.pan.value = panValue;
+      pannerNode.pan.value = panValue;
       
       // Adjust volume based on distance (closer = louder)
-      const volume = Math.max(0.1, Math.min(1, (20 - Math.abs(distance)) / 20));
+      const volume = Math.max(0.15, Math.min(0.8, (25 - Math.abs(distance)) / 25));
+      gainNode.gain.value = volume;
       
-      source.connect(panner);
-      panner.connect(audioContextRef.current.destination);
+      // Doppler effect: adjust playback rate based on velocity
+      // Approaching cars (positive velocity) = higher pitch
+      // Receding cars (negative velocity) = lower pitch
+      const dopplerFactor = 1 + (velocity * 0.1); // Scale factor for effect strength
+      source.playbackRate.value = Math.max(0.7, Math.min(1.5, dopplerFactor));
       
-      audio.volume = volume * 1.2;
-      audio.play().catch(console.log);
+      // Connect the audio graph
+      source.connect(gainNode);
+      gainNode.connect(pannerNode);
+      pannerNode.connect(audioContextRef.current.destination);
       
-      console.log(`Honk warning: Lane ${lane}, Pan: ${panValue}, Volume: ${volume.toFixed(2)}`);
+      // Track this sound
+      const activeSound: ActiveSound = {
+        source,
+        gainNode,
+        pannerNode,
+        lane,
+        startTime: audioContextRef.current.currentTime
+      };
+      activeSoundsRef.current.set(lane, activeSound);
+      
+      // Auto-cleanup when sound ends
+      source.onended = () => {
+        activeSoundsRef.current.delete(lane);
+      };
+      
+      source.start();
+      
+      console.log(`Honk warning: Lane ${lane}, Pan: ${panValue}, Volume: ${volume.toFixed(2)}, Doppler: ${dopplerFactor.toFixed(2)}`);
     } catch (error) {
       console.log('Audio play prevented:', error);
     }
