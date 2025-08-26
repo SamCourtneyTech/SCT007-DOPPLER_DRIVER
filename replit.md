@@ -25,7 +25,8 @@ Preferred communication style: Simple, everyday language.
 - **Real-time Game Loop**: Frame-based updates using React Three Fiber's useFrame hook
 - **Lane-based Movement**: Three-lane system with keyboard controls for left/right movement
 - **Collision Detection**: Spatial collision checking between player and enemy vehicles
-- **Progressive Difficulty**: Enemy spawn rate increases over time based on survival duration
+- **Constant Difficulty**: Enemy spawn rate remains consistent for predictable audio timing
+- **Day/Night Cycle**: Dynamic lighting system that transitions from day to night at 2-minute mark with smooth 10-second transition
 
 ## Data Storage
 - **Drizzle ORM**: Type-safe database operations with PostgreSQL

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import "@fontsource/inter";
 import DrivingGame from "./components/DrivingGame";
+import DayNightCycle from "./components/DayNightCycle";
 
 // Define control keys for the driving game
 export enum Controls {
@@ -40,19 +41,8 @@ function App() {
         >
           <color attach="background" args={["#87CEEB"]} />
           
-          {/* Lighting */}
-          <ambientLight intensity={0.6} />
-          <directionalLight
-            position={[10, 10, 5]}
-            intensity={1}
-            castShadow
-            shadow-mapSize={[2048, 2048]}
-            shadow-camera-far={50}
-            shadow-camera-left={-20}
-            shadow-camera-right={20}
-            shadow-camera-top={20}
-            shadow-camera-bottom={-20}
-          />
+          {/* Dynamic Day/Night Lighting */}
+          <DayNightCycle />
           
           <Suspense fallback={null}>
             <DrivingGame />
