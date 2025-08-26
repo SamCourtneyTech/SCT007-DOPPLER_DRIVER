@@ -274,6 +274,9 @@ export default function AudioManager() {
   const playHonkSound = (lane: number, distance: number, velocity: number) => {
     if (!audioContextRef.current) return;
 
+    // 40% chance for honks to happen at all
+    if (Math.random() > 0.4) return;
+
     // Select appropriate sound buffer based on lane
     let selectedBuffer: AudioBuffer | null = null;
     
