@@ -173,23 +173,14 @@ export default function AudioManager() {
     };
   }, []);
 
-  // Handle background music
-  useEffect(() => {
-    if (!backgroundMusicRef.current) return;
 
-    if (gameState === 'playing' && !isMuted) {
-      backgroundMusicRef.current.play().catch(console.log);
-    } else {
-      backgroundMusicRef.current.pause();
-    }
-  }, [gameState, isMuted]);
 
   // Play spatial honking warnings with doppler effect
   useEffect(() => {
     if (!audioContextRef.current || !hornBufferRef.current || isMuted || gameState !== 'playing') return;
 
     const currentTime = audioContextRef.current.currentTime;
-    const HONK_COOLDOWN = 0.8; // Reduced cooldown for more immediate response
+    const HONK_COOLDOWN = 1.2; // Prevent audio doubling with longer cooldown
     const MIN_CAR_DISTANCE = 15; // Increased distance to prevent too many overlapping sounds
 
     enemyCars.forEach(enemy => {
