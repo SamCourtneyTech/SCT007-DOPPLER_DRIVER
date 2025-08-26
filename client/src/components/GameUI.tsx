@@ -82,42 +82,42 @@ export default function GameUI() {
           }}>
             <div style={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              padding: '20px',
+              padding: '30px',
               borderRadius: '15px',
               textAlign: 'center',
-              maxWidth: '350px',
+              maxWidth: '450px',
               maxHeight: '80vh',
               overflow: 'auto',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
             }}>
               <h1 style={{ 
-                fontSize: '24px', 
+                fontSize: '30px', 
                 fontWeight: 'bold', 
-                marginBottom: '15px',
+                marginBottom: '20px',
                 color: '#333'
               }}>
                 Wrong Way Driver
               </h1>
               <p style={{ 
-                fontSize: '14px', 
-                marginBottom: '20px',
+                fontSize: '16px', 
+                marginBottom: '25px',
                 color: '#666',
-                lineHeight: '1.4'
+                lineHeight: '1.5'
               }}>
                 You're driving on the wrong side of the road!<br/>
                 Listen for honking sounds to know which lane has incoming traffic.<br/>
                 Switch lanes quickly to avoid crashes!
               </p>
-              <div style={{ marginBottom: '20px', color: '#888', fontSize: '12px' }}>
+              <div style={{ marginBottom: '25px', color: '#888', fontSize: '14px' }}>
                 <div>🎧 Use headphones for best experience</div>
                 <div>A/D or ←/→ keys to switch lanes</div>
               </div>
               <button
                 onClick={startGame}
                 style={{
-                  fontSize: '16px',
+                  fontSize: '18px',
                   fontWeight: 'bold',
-                  padding: '12px 24px',
+                  padding: '15px 30px',
                   backgroundColor: '#ff4444',
                   color: 'white',
                   border: 'none',
@@ -157,30 +157,30 @@ export default function GameUI() {
           }}>
             <div style={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              padding: '20px',
+              padding: '30px',
               borderRadius: '15px',
               textAlign: 'center',
-              maxWidth: '350px',
+              maxWidth: '400px',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
             }}>
               <h2 style={{ 
-                fontSize: '24px', 
+                fontSize: '28px', 
                 fontWeight: 'bold', 
-                marginBottom: '15px',
+                marginBottom: '20px',
                 color: '#ff4444'
               }}>
                 CRASHED!
               </h2>
               <p style={{ 
-                fontSize: '16px', 
-                marginBottom: '10px',
+                fontSize: '18px', 
+                marginBottom: '15px',
                 color: '#333'
               }}>
                 Survival Time: {formatTime(survivalTime)}
               </p>
               <p style={{ 
-                fontSize: '12px', 
-                marginBottom: '20px',
+                fontSize: '14px', 
+                marginBottom: '25px',
                 color: '#666'
               }}>
                 You got caught by the police or crashed into traffic!
@@ -188,9 +188,9 @@ export default function GameUI() {
               <button
                 onClick={resetGame}
                 style={{
-                  fontSize: '14px',
+                  fontSize: '16px',
                   fontWeight: 'bold',
-                  padding: '10px 20px',
+                  padding: '12px 25px',
                   backgroundColor: '#4444ff',
                   color: 'white',
                   border: 'none',
