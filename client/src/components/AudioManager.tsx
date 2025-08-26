@@ -54,8 +54,8 @@ export default function AudioManager() {
 
     enemyCars.forEach(enemy => {
       // Only warn about cars that are approaching (close enough to be dangerous)
-      if (enemy.z > -20 && enemy.z < -5) {
-        const warningId = `${enemy.id}-${Math.floor(enemy.z)}`;
+      if (enemy.z > -25 && enemy.z < -3) {
+        const warningId = `${enemy.id}-${Math.floor(enemy.z / 3)}`;
         
         if (!playedWarnings.current.has(warningId)) {
           playedWarnings.current.add(warningId);
@@ -94,7 +94,7 @@ export default function AudioManager() {
       source.connect(panner);
       panner.connect(audioContextRef.current.destination);
       
-      audio.volume = volume * 0.7;
+      audio.volume = volume * 1.2;
       audio.play().catch(console.log);
       
       console.log(`Honk warning: Lane ${lane}, Pan: ${panValue}, Volume: ${volume.toFixed(2)}`);

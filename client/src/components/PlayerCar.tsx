@@ -21,11 +21,11 @@ export default function PlayerCar() {
     const unsubscribeLeft = subscribe(
       state => state.left,
       pressed => {
-        if (pressed && playerLane > 0) {
-          const newLane = playerLane - 1;
+        if (pressed && playerLane < 2) {
+          const newLane = playerLane + 1;
           setPlayerLane(newLane);
           const position = lanePositions[newLane];
-          console.log(`A/LEFT ARROW pressed: moved to lane ${newLane} at position ${position} (LEFT SIDE)`);
+          console.log(`A/LEFT ARROW pressed: moved to lane ${newLane} at position ${position} (MOVING RIGHT)`);
         }
       }
     );
@@ -33,11 +33,11 @@ export default function PlayerCar() {
     const unsubscribeRight = subscribe(
       state => state.right,
       pressed => {
-        if (pressed && playerLane < 2) {
-          const newLane = playerLane + 1;
+        if (pressed && playerLane > 0) {
+          const newLane = playerLane - 1;
           setPlayerLane(newLane);
           const position = lanePositions[newLane];
-          console.log(`D/RIGHT ARROW pressed: moved to lane ${newLane} at position ${position} (RIGHT SIDE)`);
+          console.log(`D/RIGHT ARROW pressed: moved to lane ${newLane} at position ${position} (MOVING LEFT)`);
         }
       }
     );
