@@ -4,11 +4,13 @@ import { useKeyboardControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { Controls } from '../App';
 import { useDriving } from '../lib/stores/useDriving';
+import { useDarkness } from './DayNightCycle';
 
 export default function PlayerCar() {
   const meshRef = useRef<THREE.Mesh>(null);
   const { playerLane, playerZ, setPlayerLane, setPlayerZ, gameState } = useDriving();
   const [subscribe] = useKeyboardControls<Controls>();
+  const darkness = useDarkness();
 
   // Lane positions: -4 (left), 0 (center), 4 (right)
   const lanePositions = [-4, 0, 4];
@@ -117,6 +119,66 @@ export default function PlayerCar() {
       <mesh position={[0.8, -0.3, -1]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.3, 0.3, 0.2]} />
         <meshLambertMaterial color="#222222" />
+      </mesh>
+
+      {/* Headlights - only visible when dark enough */}
+      {darkness > 0.3 && (
+        <>
+          <mesh position={[-0.5, 0.2, 1.6]}>
+            <sphereGeometry args={[0.15, 8, 8]} />
+            <meshStandardMaterial 
+              color="#ffffff" 
+              emissive="#ffffff"
+              emissiveIntensity={0.8}
+            />
+          </mesh>
+          <mesh position={[0.5, 0.2, 1.6]}>
+            <sphereGeometry args={[0.15, 8, 8]} />
+            <meshStandardMaterial 
+              color="#ffffff" 
+              emissive="#ffffff"
+              emissiveIntensity={0.8}
+            />
+          </mesh>
+          
+          {/* Headlight beams */}
+          <spotLight
+            position={[-0.5, 0.2, 1.6]}
+            target-position={[-2, 0, 10]}
+            angle={0.3}
+            penumbra={0.1}
+            intensity={1}
+            distance={20}
+            color="#ffffff"
+          />
+          <spotLight
+            position={[0.5, 0.2, 1.6]}
+            target-position={[2, 0, 10]}
+            angle={0.3}
+            penumbra={0.1}
+            intensity={1}
+            distance={20}
+            color="#ffffff"
+          />
+        </>
+      )}
+
+      {/* Brake lights - always visible but more prominent at night */}
+      <mesh position={[-0.6, 0.3, -1.6]}>
+        <sphereGeometry args={[0.1, 8, 8]} />
+        <meshStandardMaterial 
+          color="#ff0000" 
+          emissive="#ff0000"
+          emissiveIntensity={darkness > 0.3 ? 0.6 : 0.2}
+        />
+      </mesh>
+      <mesh position={[0.6, 0.3, -1.6]}>
+        <sphereGeometry args={[0.1, 8, 8]} />
+        <meshStandardMaterial 
+          color="#ff0000" 
+          emissive="#ff0000"
+          emissiveIntensity={darkness > 0.3 ? 0.6 : 0.2}
+        />
       </mesh>
     </mesh>
   );

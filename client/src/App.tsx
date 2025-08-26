@@ -42,11 +42,11 @@ function App() {
           <color attach="background" args={["#87CEEB"]} />
           
           {/* Dynamic Day/Night Lighting */}
-          <DayNightCycle />
-          
-          <Suspense fallback={null}>
-            <DrivingGame />
-          </Suspense>
+          <DayNightCycle>
+            <Suspense fallback={null}>
+              <DrivingGame />
+            </Suspense>
+          </DayNightCycle>
         </Canvas>
       </KeyboardControls>
     </div>
