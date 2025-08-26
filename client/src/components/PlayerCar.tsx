@@ -53,10 +53,22 @@ export default function PlayerCar() {
       }
     );
 
+    const unsubscribeBack = subscribe(
+      state => state.back,
+      pressed => {
+        if (pressed) {
+          const newZ = playerZ - 0.5; // Move backward
+          setPlayerZ(newZ);
+          console.log(`S/DOWN ARROW pressed: moved backward to Z position ${newZ.toFixed(1)} (SAFER!)`);
+        }
+      }
+    );
+
     return () => {
       unsubscribeLeft();
       unsubscribeRight();
       unsubscribeForward();
+      unsubscribeBack();
     };
   }, [playerLane, playerZ, setPlayerLane, setPlayerZ, gameState, subscribe]);
 

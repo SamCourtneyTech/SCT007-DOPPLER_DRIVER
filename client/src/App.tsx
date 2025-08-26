@@ -9,6 +9,7 @@ export enum Controls {
   left = 'left',
   right = 'right',
   forward = 'forward',
+  back = 'back',
   restart = 'restart',
 }
 
@@ -16,6 +17,7 @@ const controls = [
   { name: Controls.left, keys: ['KeyA', 'ArrowLeft'] },
   { name: Controls.right, keys: ['KeyD', 'ArrowRight'] },
   { name: Controls.forward, keys: ['KeyW', 'ArrowUp'] },
+  { name: Controls.back, keys: ['KeyS', 'ArrowDown'] },
   { name: Controls.restart, keys: ['KeyR'] },
 ];
 
