@@ -18,14 +18,14 @@ export default function Road() {
   grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
   grassTexture.repeat.set(4, 20);
 
-  // Animate textures for high-speed effect
+  // Animate textures for ultra high-speed effect
   useFrame((state, delta) => {
-    // Move road texture backward fast for speed effect
-    asphaltOffsetRef.current += delta * 3; // Adjust speed multiplier as needed
+    // Move road texture backward extremely fast for speed effect
+    asphaltOffsetRef.current += delta * 8; // Much faster speed
     asphaltTexture.offset.y = -asphaltOffsetRef.current;
     
-    // Move grass texture backward (slightly slower than road)
-    grassOffsetRef.current += delta * 2.5;
+    // Move grass texture backward fast too
+    grassOffsetRef.current += delta * 6;
     grassTexture.offset.y = -grassOffsetRef.current;
   });
 
