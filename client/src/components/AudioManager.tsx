@@ -16,6 +16,16 @@ export default function AudioManager() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const hornBufferRef = useRef<AudioBuffer | null>(null);
+  const centerHornBuffersRef = useRef<{
+    center1: AudioBuffer | null;
+    center2: AudioBuffer | null;
+    center3: AudioBuffer | null;
+  }>({ center1: null, center2: null, center3: null });
+  const rightHornBuffersRef = useRef<{
+    right1: AudioBuffer | null;
+    right2: AudioBuffer | null;
+    right3: AudioBuffer | null;
+  }>({ right1: null, right2: null, right3: null });
   const activeSoundsRef = useRef<Map<number, ActiveSound>>(new Map());
   const lastHonkTimeRef = useRef<Map<number, number>>(new Map());
   const previousCarPositionsRef = useRef<Map<string, number>>(new Map());
@@ -42,7 +52,73 @@ export default function AudioManager() {
       }
     };
 
+    // Load center and right lane horn sounds with different variations
+    const loadVariationHornSounds = async () => {
+      try {
+        // Load center lane sounds
+        const centerFiles = [
+          'CarHonkCenter1_1756176216637.mp3',
+          'CarHonkCenter2_1756176259131.mp3', 
+          'CarHonkCenter3_1756176284108.mp3'
+        ];
+        
+        // Load right lane sounds
+        const rightFiles = [
+          'CarHonkRight1_1756176347426.mp3',
+          'CarHonkRight2_1756176405172.mp3',
+          'CarHonkRight3_1756176414004.mp3'
+        ];
+
+        // Load center lane sounds
+        for (let i = 0; i < centerFiles.length; i++) {
+          console.log(`Loading center sound ${i + 1}: ${centerFiles[i]}`);
+          const response = await fetch(`/attached_assets/${centerFiles[i]}`);
+          
+          if (!response.ok) {
+            console.error(`Failed to fetch ${centerFiles[i]}: ${response.status} ${response.statusText}`);
+            continue;
+          }
+          
+          const arrayBuffer = await response.arrayBuffer();
+          console.log(`Center sound ${i + 1} buffer size:`, arrayBuffer.byteLength);
+          const audioBuffer = await audioContextRef.current!.decodeAudioData(arrayBuffer);
+          
+          if (i === 0) centerHornBuffersRef.current.center1 = audioBuffer;
+          else if (i === 1) centerHornBuffersRef.current.center2 = audioBuffer;
+          else centerHornBuffersRef.current.center3 = audioBuffer;
+          
+          console.log(`Center sound ${i + 1} loaded successfully`);
+        }
+
+        // Load right lane sounds
+        for (let i = 0; i < rightFiles.length; i++) {
+          console.log(`Loading right sound ${i + 1}: ${rightFiles[i]}`);
+          const response = await fetch(`/attached_assets/${rightFiles[i]}`);
+          
+          if (!response.ok) {
+            console.error(`Failed to fetch ${rightFiles[i]}: ${response.status} ${response.statusText}`);
+            continue;
+          }
+          
+          const arrayBuffer = await response.arrayBuffer();
+          console.log(`Right sound ${i + 1} buffer size:`, arrayBuffer.byteLength);
+          const audioBuffer = await audioContextRef.current!.decodeAudioData(arrayBuffer);
+          
+          if (i === 0) rightHornBuffersRef.current.right1 = audioBuffer;
+          else if (i === 1) rightHornBuffersRef.current.right2 = audioBuffer;
+          else rightHornBuffersRef.current.right3 = audioBuffer;
+          
+          console.log(`Right sound ${i + 1} loaded successfully`);
+        }
+
+        console.log('Center and right horn sound variations loaded successfully');
+      } catch (error) {
+        console.log('Failed to load horn sound variations:', error);
+      }
+    };
+
     loadHornSound();
+    loadVariationHornSounds();
 
     return () => {
       // Stop all active sounds
@@ -118,8 +194,56 @@ export default function AudioManager() {
 
   }, [enemyCars, isMuted, gameState]);
 
+  // Function to select center horn sound based on probabilities
+  const selectCenterHornBuffer = (): AudioBuffer | null => {
+    const random = Math.random();
+    
+    if (random < 0.80) {
+      // 80% chance for CarHonkCenter1
+      return centerHornBuffersRef.current.center1;
+    } else if (random < 0.95) {
+      // 15% chance for CarHonkCenter2 (80% + 15% = 95%)
+      return centerHornBuffersRef.current.center2;
+    } else {
+      // 5% chance for CarHonkCenter3 (remaining 5%)
+      return centerHornBuffersRef.current.center3;
+    }
+  };
+
+  // Function to select right horn sound based on probabilities  
+  const selectRightHornBuffer = (): AudioBuffer | null => {
+    const random = Math.random();
+    
+    if (random < 0.80) {
+      // 80% chance for CarHonkRight1
+      return rightHornBuffersRef.current.right1;
+    } else if (random < 0.95) {
+      // 15% chance for CarHonkRight2 (80% + 15% = 95%)
+      return rightHornBuffersRef.current.right2;
+    } else {
+      // 5% chance for CarHonkRight3 (remaining 5%)
+      return rightHornBuffersRef.current.right3;
+    }
+  };
+
   const playHonkSoundWithDoppler = (lane: number, distance: number, velocity: number) => {
-    if (!audioContextRef.current || !hornBufferRef.current) return;
+    if (!audioContextRef.current) return;
+
+    // Select appropriate sound buffer based on lane
+    let selectedBuffer: AudioBuffer | null = null;
+    
+    if (lane === 0) {
+      // Left lane - use original horn sound
+      selectedBuffer = hornBufferRef.current;
+    } else if (lane === 1) {
+      // Center lane - use probability-based selection
+      selectedBuffer = selectCenterHornBuffer();
+    } else if (lane === 2) {
+      // Right lane - use probability-based selection
+      selectedBuffer = selectRightHornBuffer();
+    }
+
+    if (!selectedBuffer) return;
 
     try {
       // Stop any existing sound in this lane
@@ -133,7 +257,7 @@ export default function AudioManager() {
       const gainNode = audioContextRef.current.createGain();
       const pannerNode = audioContextRef.current.createStereoPanner();
       
-      source.buffer = hornBufferRef.current;
+      source.buffer = selectedBuffer;
       
       // Enhanced spatial positioning - more pronounced left/right separation
       // Lane 0 (left) = -0.8, Lane 1 (center) = 0, Lane 2 (right) = 0.8
@@ -190,7 +314,19 @@ export default function AudioManager() {
       
       source.start();
       
-      console.log(`Honk warning: Lane ${lane} (${['LEFT', 'CENTER', 'RIGHT'][lane]}), Pan: ${panValues[lane]}, Volume: ${finalVolume.toFixed(2)}, Doppler: ${dopplerFactor.toFixed(2)}`);
+      // Log which sound variant is being used
+      let soundVariant = 'original';
+      if (lane === 1) {
+        if (selectedBuffer === centerHornBuffersRef.current.center1) soundVariant = 'center1';
+        else if (selectedBuffer === centerHornBuffersRef.current.center2) soundVariant = 'center2';
+        else if (selectedBuffer === centerHornBuffersRef.current.center3) soundVariant = 'center3';
+      } else if (lane === 2) {
+        if (selectedBuffer === rightHornBuffersRef.current.right1) soundVariant = 'right1';
+        else if (selectedBuffer === rightHornBuffersRef.current.right2) soundVariant = 'right2';
+        else if (selectedBuffer === rightHornBuffersRef.current.right3) soundVariant = 'right3';
+      }
+      
+      console.log(`Honk warning: Lane ${lane} (${['LEFT', 'CENTER', 'RIGHT'][lane]}), Sound: ${soundVariant}, Pan: ${panValues[lane]}, Volume: ${finalVolume.toFixed(2)}, Doppler: ${dopplerFactor.toFixed(2)}`);
     } catch (error) {
       console.log('Audio play prevented:', error);
     }
