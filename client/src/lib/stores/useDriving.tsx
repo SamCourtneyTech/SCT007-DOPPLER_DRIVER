@@ -46,6 +46,7 @@ interface DrivingState {
   gameStartTime: number;
   cameraShake: number;
   showLevel2: boolean;
+  showRain: boolean;
   
   // Actions
   startGame: () => void;
@@ -63,6 +64,7 @@ interface DrivingState {
   triggerPoliceChase: (currentTime: number) => void;
   updatePoliceChase: (currentTime: number) => void;
   checkLevel2Display: (currentTime: number) => void;
+  checkRainStart: (currentTime: number) => void;
 }
 
 export const useDriving = create<DrivingState>()(
@@ -80,6 +82,7 @@ export const useDriving = create<DrivingState>()(
     gameStartTime: 0,
     cameraShake: 0,
     showLevel2: false,
+    showRain: false,
     
     startGame: () => {
       console.log('Game started');
@@ -95,6 +98,7 @@ export const useDriving = create<DrivingState>()(
         gameStartTime: Date.now(),
         cameraShake: 0,
         showLevel2: false,
+        showRain: false,
         playerLane: 1,
         playerZ: -8
       });
@@ -378,6 +382,17 @@ export const useDriving = create<DrivingState>()(
             set({ showLevel2: false });
           }
         }, 3000);
+      }
+    },
+
+    checkRainStart: (currentTime: number) => {
+      const { gameStartTime, showRain } = get();
+      
+      // Start rain at 2 minutes 30 seconds (150 seconds)
+      const timeSinceGameStart = currentTime - gameStartTime;
+      if (timeSinceGameStart >= 150000 && !showRain) {
+        console.log('Rain starting!');
+        set({ showRain: true });
       }
     }
   }))

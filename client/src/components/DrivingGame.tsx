@@ -9,6 +9,7 @@ import GameUI from './GameUI';
 import AudioManager from './AudioManager';
 import MissileAttack from './MissileAttack';
 import PoliceCar from './PoliceCar';
+import Rain from './Rain';
 
 export default function DrivingGame() {
   const { 
@@ -18,6 +19,7 @@ export default function DrivingGame() {
     missileAttacks,
     policeCars,
     cameraShake,
+    showRain,
     spawnEnemy, 
     updateEnemies, 
     checkCollisions,
@@ -28,7 +30,8 @@ export default function DrivingGame() {
     updatePoliceCars,
     triggerPoliceChase,
     updatePoliceChase,
-    checkLevel2Display
+    checkLevel2Display,
+    checkRainStart
   } = useDriving();
 
   const lastSpawnTime = useRef(0);
@@ -68,6 +71,9 @@ export default function DrivingGame() {
     
     // Check for Level 2 display
     checkLevel2Display(now);
+    
+    // Check for rain start
+    checkRainStart(now);
     updatePoliceCars(delta);
   });
 
@@ -91,6 +97,10 @@ export default function DrivingGame() {
       {missileAttacks.map(missile => (
         <MissileAttack key={missile.id} missile={missile} />
       ))}
+      
+      {/* Rain effect */}
+      {showRain && <Rain intensity={1.2} dropCount={800} />}
+      
       <AudioManager />
       <GameUI />
     </>

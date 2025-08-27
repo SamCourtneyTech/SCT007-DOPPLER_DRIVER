@@ -67,7 +67,8 @@ export default function AudioManager() {
     // Load jet and missile sounds
     const jetAudio = new Audio('/attached_assets/Fighter jet sound effect_1756263897734.mp3');
     const missileAudio = new Audio('/attached_assets/MissileCenter_1756263962342.mp3');
-    missileAudio.volume = 1.0; // Set to max volume, will be amplified via gain in playback
+    jetAudio.volume = 0.7; // Base volume for jet sound
+    missileAudio.volume = 0.8; // Base volume for missile sound
     setJetSound(jetAudio);
     setMissileSound(missileAudio);
 
@@ -75,6 +76,9 @@ export default function AudioManager() {
     const crashLeftAudio = new Audio('/attached_assets/CrashRight_1756265439834.mp3');
     const crashCenterAudio = new Audio('/attached_assets/CrashCenter_1756265402007.mp3');
     const crashRightAudio = new Audio('/attached_assets/CrashLeft_1756265441787.mp3');
+    crashLeftAudio.volume = 0.8;
+    crashCenterAudio.volume = 0.8;
+    crashRightAudio.volume = 0.8;
     setCrashLeftSound(crashLeftAudio);
     setCrashCenterSound(crashCenterAudio);
     setCrashRightSound(crashRightAudio);
@@ -82,6 +86,8 @@ export default function AudioManager() {
     // Load police sounds
     const policeWarningAudio = new Audio('/attached_assets/PoliceCops Siren Sound Effect _Whoop Whoop_ _ Cop Siren Sounds _ Realistic HD Audio_1756266584194.mp3');
     const policeSirenAudio = new Audio('/attached_assets/Police Siren Sound Effect_1756266608855.mp3');
+    policeWarningAudio.volume = 0.6;
+    policeSirenAudio.volume = 0.6;
     setPoliceWarningSound(policeWarningAudio);
     setPoliceSirenSound(policeSirenAudio);
 
@@ -287,6 +293,42 @@ export default function AudioManager() {
     const song2 = document.querySelector('audio[src="/attached_assets/Untitled_1756304554443.mp3"]') as HTMLAudioElement;
     if (song2) {
       song2.volume = 0.5 * masterVolume;
+    }
+    
+    // Update all other audio elements to respect master volume
+    const jetAudio = document.querySelector('audio[src="/attached_assets/Fighter jet sound effect_1756263897734.mp3"]') as HTMLAudioElement;
+    if (jetAudio) {
+      jetAudio.volume = 0.7 * masterVolume;
+    }
+    
+    const missileAudio = document.querySelector('audio[src="/attached_assets/MissileCenter_1756263962342.mp3"]') as HTMLAudioElement;
+    if (missileAudio) {
+      missileAudio.volume = 0.8 * masterVolume;
+    }
+    
+    const crashLeftAudio = document.querySelector('audio[src="/attached_assets/CrashRight_1756265439834.mp3"]') as HTMLAudioElement;
+    if (crashLeftAudio) {
+      crashLeftAudio.volume = 0.8 * masterVolume;
+    }
+    
+    const crashCenterAudio = document.querySelector('audio[src="/attached_assets/CrashCenter_1756265402007.mp3"]') as HTMLAudioElement;
+    if (crashCenterAudio) {
+      crashCenterAudio.volume = 0.8 * masterVolume;
+    }
+    
+    const crashRightAudio = document.querySelector('audio[src="/attached_assets/CrashLeft_1756265441787.mp3"]') as HTMLAudioElement;
+    if (crashRightAudio) {
+      crashRightAudio.volume = 0.8 * masterVolume;
+    }
+    
+    const policeWarningAudio = document.querySelector('audio[src="/attached_assets/PoliceCops Siren Sound Effect _Whoop Whoop_ _ Cop Siren Sounds _ Realistic HD Audio_1756266584194.mp3"]') as HTMLAudioElement;
+    if (policeWarningAudio) {
+      policeWarningAudio.volume = 0.6 * masterVolume;
+    }
+    
+    const policeSirenAudio = document.querySelector('audio[src="/attached_assets/Police Siren Sound Effect_1756266608855.mp3"]') as HTMLAudioElement;
+    if (policeSirenAudio) {
+      policeSirenAudio.volume = 0.6 * masterVolume;
     }
   }, [masterVolume]);
 
