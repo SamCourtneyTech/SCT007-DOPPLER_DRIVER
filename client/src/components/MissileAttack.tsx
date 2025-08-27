@@ -37,8 +37,8 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
     }
     
     if (missile.phase === 'incoming' && missileRef.current) {
-      // Show incoming missile - delayed by 5 seconds
-      const missileAge = timeElapsed - 21000; // Start dropping 5 seconds later (21s instead of 16s)
+      // Show incoming missile - delayed by 6 seconds
+      const missileAge = timeElapsed - 22000; // Start dropping 6 seconds later (22s instead of 16s)
       if (missileAge > 0 && missileAge < 1150) {
         // Missile falls from sky over 1.15 seconds (double as fast again)
         const progress = missileAge / 1150;
