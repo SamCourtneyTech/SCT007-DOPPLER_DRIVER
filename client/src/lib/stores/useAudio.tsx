@@ -134,11 +134,9 @@ export const useAudio = create<AudioState>((set, get) => ({
         return;
       }
       
-      // Clone the sound to avoid MediaElementSource conflicts
-      const soundClone = missileSound.cloneNode() as HTMLAudioElement;
-      soundClone.currentTime = 0;
-      soundClone.volume = Math.min(1.0, 1.0 * masterVolume); // Respect HTML5 volume limits
-      soundClone.play().catch(error => {
+      missileSound.currentTime = 0;
+      missileSound.volume = 1.0 * masterVolume; // Keep at maximum volume for missile sound
+      missileSound.play().catch(error => {
         console.log("Missile sound play prevented:", error);
       });
     }
