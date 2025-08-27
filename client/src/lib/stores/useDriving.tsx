@@ -310,6 +310,7 @@ export const useDriving = create<DrivingState>()(
       if (chaseElapsed >= 20000) {
         // After 20 seconds, police cars retreat
         console.log('Police chase ending - cars retreating');
+        
         set({ 
           policeChase: null,
           policeCars: [] 

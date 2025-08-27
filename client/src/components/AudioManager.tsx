@@ -11,8 +11,8 @@ interface ActiveSound {
 }
 
 export default function AudioManager() {
-  const { enemyCars, gameState, missileAttacks } = useDriving();
-  const { isMuted, setJetSound, setMissileSound, setCrashLeftSound, setCrashCenterSound, setCrashRightSound, playJet, playMissile, playCrash } = useAudio();
+  const { enemyCars, gameState, missileAttacks, policeChase, policeCars } = useDriving();
+  const { isMuted, setJetSound, setMissileSound, setCrashLeftSound, setCrashCenterSound, setCrashRightSound, setPoliceWarningSound, setPoliceSirenSound, playJet, playMissile, playCrash, playPoliceWarning, playPoliceSiren, stopPoliceSiren } = useAudio();
   const audioContextRef = useRef<AudioContext | null>(null);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const engineSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -64,6 +64,12 @@ export default function AudioManager() {
     setCrashLeftSound(crashLeftAudio);
     setCrashCenterSound(crashCenterAudio);
     setCrashRightSound(crashRightAudio);
+
+    // Load police sounds
+    const policeWarningAudio = new Audio('/attached_assets/PoliceCops Siren Sound Effect _Whoop Whoop_ _ Cop Siren Sounds _ Realistic HD Audio_1756266584194.mp3');
+    const policeSirenAudio = new Audio('/attached_assets/Police Siren Sound Effect_1756266608855.mp3');
+    setPoliceWarningSound(policeWarningAudio);
+    setPoliceSirenSound(policeSirenAudio);
 
     // Load horn sound as AudioBuffer for better control
     const loadHornSound = async () => {
@@ -408,6 +414,28 @@ export default function AudioManager() {
     }
 
   }, [missileAttacks, playJet, playMissile]);
+
+  // Monitor police chase events and play appropriate sounds
+  useEffect(() => {
+    if (!policeChase) return;
+
+    const currentTime = Date.now();
+    const chaseElapsed = currentTime - policeChase.startTime;
+
+    // Play warning sound when chase starts (first 2 seconds)
+    if (chaseElapsed < 2000 && policeChase.active) {
+      playPoliceWarning();
+    }
+    // Start siren after warning sound (after 2 seconds)
+    else if (chaseElapsed >= 2000 && chaseElapsed < 20000 && policeChase.active) {
+      playPoliceSiren();
+    }
+    // Stop siren when chase ends (after 20 seconds)
+    else if (chaseElapsed >= 20000) {
+      stopPoliceSiren();
+    }
+
+  }, [policeChase, playPoliceWarning, playPoliceSiren, stopPoliceSiren]);
 
   // Monitor for crash events
   useEffect(() => {

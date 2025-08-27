@@ -9,6 +9,8 @@ interface AudioState {
   crashLeftSound: HTMLAudioElement | null;
   crashCenterSound: HTMLAudioElement | null;
   crashRightSound: HTMLAudioElement | null;
+  policeWarningSound: HTMLAudioElement | null;
+  policeSirenSound: HTMLAudioElement | null;
   isMuted: boolean;
   
   // Setter functions
@@ -20,6 +22,8 @@ interface AudioState {
   setCrashLeftSound: (sound: HTMLAudioElement) => void;
   setCrashCenterSound: (sound: HTMLAudioElement) => void;
   setCrashRightSound: (sound: HTMLAudioElement) => void;
+  setPoliceWarningSound: (sound: HTMLAudioElement) => void;
+  setPoliceSirenSound: (sound: HTMLAudioElement) => void;
   
   // Control functions
   toggleMute: () => void;
@@ -28,6 +32,9 @@ interface AudioState {
   playJet: () => void;
   playMissile: () => void;
   playCrash: (lane: number) => void;
+  playPoliceWarning: () => void;
+  playPoliceSiren: () => void;
+  stopPoliceSiren: () => void;
 }
 
 export const useAudio = create<AudioState>((set, get) => ({
@@ -39,6 +46,8 @@ export const useAudio = create<AudioState>((set, get) => ({
   crashLeftSound: null,
   crashCenterSound: null,
   crashRightSound: null,
+  policeWarningSound: null,
+  policeSirenSound: null,
   isMuted: false, // Start unmuted for audio cues
   
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
@@ -49,6 +58,8 @@ export const useAudio = create<AudioState>((set, get) => ({
   setCrashLeftSound: (sound) => set({ crashLeftSound: sound }),
   setCrashCenterSound: (sound) => set({ crashCenterSound: sound }),
   setCrashRightSound: (sound) => set({ crashRightSound: sound }),
+  setPoliceWarningSound: (sound) => set({ policeWarningSound: sound }),
+  setPoliceSirenSound: (sound) => set({ policeSirenSound: sound }),
   
   toggleMute: () => {
     const { isMuted } = get();
@@ -158,6 +169,51 @@ export const useAudio = create<AudioState>((set, get) => ({
       console.log(`Playing crash sound for ${laneName} lane`);
     } else {
       console.log(`No crash sound available for lane ${lane} (${laneName})`);
+    }
+  },
+
+  playPoliceWarning: () => {
+    const { policeWarningSound, isMuted } = get();
+    if (policeWarningSound) {
+      if (isMuted) {
+        console.log("Police warning sound skipped (muted)");
+        return;
+      }
+      
+      policeWarningSound.currentTime = 0;
+      policeWarningSound.volume = 0.7;
+      policeWarningSound.play().catch(error => {
+        console.log("Police warning sound play prevented:", error);
+      });
+      console.log("Playing police warning sound");
+    }
+  },
+
+  playPoliceSiren: () => {
+    const { policeSirenSound, isMuted } = get();
+    if (policeSirenSound) {
+      if (isMuted) {
+        console.log("Police siren skipped (muted)");
+        return;
+      }
+      
+      policeSirenSound.currentTime = 0;
+      policeSirenSound.volume = 0.6;
+      policeSirenSound.loop = true;
+      policeSirenSound.play().catch(error => {
+        console.log("Police siren play prevented:", error);
+      });
+      console.log("Playing police siren (looping)");
+    }
+  },
+
+  stopPoliceSiren: () => {
+    const { policeSirenSound } = get();
+    if (policeSirenSound) {
+      policeSirenSound.pause();
+      policeSirenSound.currentTime = 0;
+      policeSirenSound.loop = false;
+      console.log("Stopped police siren");
     }
   }
 }));
