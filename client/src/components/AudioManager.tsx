@@ -41,10 +41,23 @@ export default function AudioManager() {
     // Initialize audio context
     audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
 
-    // Load background music
-    backgroundMusicRef.current = new Audio('/attached_assets/\'_1756177926740.mp3');
-    backgroundMusicRef.current.loop = true;
-    backgroundMusicRef.current.volume = 0.5; // Increased background music volume
+    // Load background music tracks
+    const song1 = new Audio('/attached_assets/\'_1756177926740.mp3');
+    const song2 = new Audio('/attached_assets/Untitled_1756304554443.mp3');
+    
+    backgroundMusicRef.current = song1;
+    backgroundMusicRef.current.volume = 0.5;
+    
+    // Set up sequential playback
+    song1.addEventListener('ended', () => {
+      console.log('Song 1 ended, starting Song 2');
+      backgroundMusicRef.current = song2;
+      song2.volume = 0.5; // Will be updated by volume effect
+      song2.loop = true; // Loop song 2 indefinitely
+      song2.play().catch(error => {
+        console.log("Song 2 play prevented:", error);
+      });
+    });
 
     // Load engine sound for continuous playback
     engineSoundRef.current = new Audio('/attached_assets/CarDrivingSustaied_1756181540499.mp3');
@@ -268,6 +281,12 @@ export default function AudioManager() {
     }
     if (engineSoundRef.current) {
       engineSoundRef.current.volume = 0.2 * masterVolume;
+    }
+    
+    // Also update song 2 volume if it exists
+    const song2 = document.querySelector('audio[src="/attached_assets/Untitled_1756304554443.mp3"]') as HTMLAudioElement;
+    if (song2) {
+      song2.volume = 0.5 * masterVolume;
     }
   }, [masterVolume]);
 
