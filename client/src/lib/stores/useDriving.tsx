@@ -186,8 +186,8 @@ export const useDriving = create<DrivingState>()(
         const timeElapsed = currentTime - missile.startTime;
         
         // Phase transitions based on timing
-        if (timeElapsed >= 20000 && missile.phase !== 'impact') {
-          // 20 seconds: Impact
+        if (timeElapsed >= 22000 && missile.phase !== 'impact') {
+          // 22 seconds: Impact
           console.log(`Missile impact in lane ${missile.targetLane}!`);
           
           // Check if player is in the target lane
@@ -197,8 +197,8 @@ export const useDriving = create<DrivingState>()(
           }
           
           return { ...missile, phase: 'impact' as const };
-        } else if (timeElapsed >= 14000 && missile.phase === 'warning') {
-          // 14 seconds: Missile incoming sound
+        } else if (timeElapsed >= 16000 && missile.phase === 'warning') {
+          // 16 seconds: Missile incoming sound
           console.log(`Missile incoming for lane ${missile.targetLane}!`);
           return { ...missile, phase: 'incoming' as const };
         }
@@ -206,7 +206,7 @@ export const useDriving = create<DrivingState>()(
         return missile;
       }).filter(missile => {
         const timeElapsed = currentTime - missile.startTime;
-        return timeElapsed < 22000; // Remove missile after 22 seconds
+        return timeElapsed < 24000; // Remove missile after 24 seconds
       });
       
       set({ missileAttacks: updatedMissiles });

@@ -19,7 +19,7 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
     
     if (missile.phase === 'impact' && explosionRef.current) {
       // Show explosion effect
-      const explosionAge = timeElapsed - 20000; // Time since impact
+      const explosionAge = timeElapsed - 22000; // Time since impact
       if (explosionAge > 0 && explosionAge < 2000) {
         // Scale explosion based on age
         const scale = Math.min(3, explosionAge / 1000 * 3);
@@ -32,7 +32,7 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
     
     if (missile.phase === 'incoming' && missileRef.current) {
       // Show incoming missile
-      const missileAge = timeElapsed - 14000; // Time since missile phase started
+      const missileAge = timeElapsed - 16000; // Time since missile phase started
       if (missileAge > 0 && missileAge < 6000) {
         // Missile falls from sky over 6 seconds
         const progress = missileAge / 6000;

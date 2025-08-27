@@ -393,8 +393,8 @@ export default function AudioManager() {
       playJet();
     }
     
-    // Play missile sound when incoming phase starts (after 14 seconds)
-    else if (missile.phase === 'incoming' && timeElapsed >= 14000 && timeElapsed < 15000) { // Only play once
+    // Play missile sound when incoming phase starts (after 16 seconds)
+    else if (missile.phase === 'incoming' && timeElapsed >= 16000 && timeElapsed < 17000) { // Only play once
       console.log('Playing missile incoming sound');
       playMissile();
     }
