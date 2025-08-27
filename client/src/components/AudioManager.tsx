@@ -57,10 +57,10 @@ export default function AudioManager() {
     setJetSound(jetAudio);
     setMissileSound(missileAudio);
 
-    // Load crash sounds
-    const crashLeftAudio = new Audio('/attached_assets/CrashLeft_1756265441787.mp3');
+    // Load crash sounds (inverted mapping to fix audio positioning)
+    const crashLeftAudio = new Audio('/attached_assets/CrashRight_1756265439834.mp3');
     const crashCenterAudio = new Audio('/attached_assets/CrashCenter_1756265402007.mp3');
-    const crashRightAudio = new Audio('/attached_assets/CrashRight_1756265439834.mp3');
+    const crashRightAudio = new Audio('/attached_assets/CrashLeft_1756265441787.mp3');
     setCrashLeftSound(crashLeftAudio);
     setCrashCenterSound(crashCenterAudio);
     setCrashRightSound(crashRightAudio);

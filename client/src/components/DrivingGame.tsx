@@ -8,6 +8,7 @@ import Road from './Road';
 import GameUI from './GameUI';
 import AudioManager from './AudioManager';
 import MissileAttack from './MissileAttack';
+import PlaneShadow from './PlaneShadow';
 
 export default function DrivingGame() {
   const { 
@@ -73,6 +74,7 @@ export default function DrivingGame() {
       {missileAttacks.map(missile => (
         <MissileAttack key={missile.id} missile={missile} />
       ))}
+      <PlaneShadow />
       <AudioManager />
       <GameUI />
     </>
