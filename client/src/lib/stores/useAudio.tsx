@@ -130,8 +130,19 @@ export const useAudio = create<AudioState>((set, get) => ({
         return;
       }
       
+      // Create audio context for gain amplification
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const source = audioContext.createMediaElementSource(missileSound);
+      const gainNode = audioContext.createGain();
+      
+      // Amplify by 20% (1.2x)
+      gainNode.gain.value = 1.2;
+      
+      source.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
       missileSound.currentTime = 0;
-      missileSound.volume = 1.0; // Maximum volume for missile sound
+      missileSound.volume = 1.0; // Base volume at max
       missileSound.play().catch(error => {
         console.log("Missile sound play prevented:", error);
       });

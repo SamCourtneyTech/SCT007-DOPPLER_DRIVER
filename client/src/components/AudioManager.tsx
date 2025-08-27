@@ -54,6 +54,7 @@ export default function AudioManager() {
     // Load jet and missile sounds
     const jetAudio = new Audio('/attached_assets/Fighter jet sound effect_1756263897734.mp3');
     const missileAudio = new Audio('/attached_assets/MissileCenter_1756263962342.mp3');
+    missileAudio.volume = 1.0; // Set to max volume, will be amplified via gain in playback
     setJetSound(jetAudio);
     setMissileSound(missileAudio);
 
