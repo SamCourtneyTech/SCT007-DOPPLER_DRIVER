@@ -19,7 +19,7 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
     
     if (missile.phase === 'impact' && explosionRef.current) {
       // Show explosion effect
-      const explosionAge = timeElapsed - 24000; // Time since impact
+      const explosionAge = timeElapsed - 23000; // Time since impact
       if (explosionAge > 0 && explosionAge < 2000) {
         // Scale explosion based on age
         const scale = Math.min(3, explosionAge / 1000 * 3);
@@ -33,11 +33,11 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
     if (missile.phase === 'incoming' && missileRef.current) {
       // Show incoming missile
       const missileAge = timeElapsed - 16000; // Time since missile phase started
-      if (missileAge > 0 && missileAge < 8000) {
-        // Missile falls from sky over 8 seconds (faster fall speed)
-        const progress = missileAge / 8000;
+      if (missileAge > 0 && missileAge < 7000) {
+        // Missile falls from sky over 7 seconds (twice as fast animation)
+        const progress = missileAge / 7000;
         const y = 50 - (progress * 50); // Fall from sky
-        const z = 10; // More forward for better visibility
+        const z = 5; // Slightly farther back than before (was 10)
         
         missileRef.current.position.set(targetX, y, z);
         missileRef.current.visible = true;
@@ -74,7 +74,7 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
       </group>
 
       {/* Explosion effect */}
-      <group ref={explosionRef} position={[targetX, 0, 10]} visible={false}>
+      <group ref={explosionRef} position={[targetX, 0, 5]} visible={false}>
         <mesh>
           <sphereGeometry args={[1, 8, 8]} />
           <meshStandardMaterial 
