@@ -17,35 +17,71 @@ export default function DayNightCycle({ children }: { children?: React.ReactNode
   useFrame((state) => {
     if (gameState !== 'playing') return;
 
-    // Calculate time progression (2 minutes = 120 seconds = 120000ms)
-    const fullNightTime = 120000; // 2 minutes in milliseconds - reach full darkness here
+    // Time markers in milliseconds
+    const nightTransitionTime = 120000; // 2 minutes - reach full darkness
+    const sunriseStartTime = 120000;    // 2 minutes - start sunrise transition
+    const sunriseEndTime = 180000;      // 3 minutes - reach full sunrise
     
-    // Calculate lighting values based on survival time
-    // Start transitioning immediately, reach full night at 2 minutes
-    const newDayFactor = Math.max(0, 1 - (survivalTime / fullNightTime)); // 1 = full day, 0 = full night
+    let newDayFactor: number;
+    
+    if (survivalTime <= nightTransitionTime) {
+      // Day to night transition (0-2 minutes)
+      newDayFactor = Math.max(0, 1 - (survivalTime / nightTransitionTime));
+    } else if (survivalTime <= sunriseEndTime) {
+      // Night to sunrise transition (2-3 minutes)
+      const sunriseProgress = (survivalTime - sunriseStartTime) / (sunriseEndTime - sunriseStartTime);
+      newDayFactor = Math.min(1, sunriseProgress); // Gradually brighten from 0 to 1
+    } else {
+      // Full sunrise (after 3 minutes)
+      newDayFactor = 1;
+    }
+    
     setDayFactor(newDayFactor);
 
-    // Update ambient light intensity (day: 0.6, night: 0.1)
+    // Update ambient light intensity
     if (ambientLightRef.current) {
-      ambientLightRef.current.intensity = 0.1 + (0.5 * newDayFactor);
+      if (survivalTime > sunriseStartTime && survivalTime <= sunriseEndTime) {
+        // During sunrise, use warmer, brighter ambient light
+        ambientLightRef.current.intensity = 0.1 + (0.7 * newDayFactor); // Brighter sunrise
+      } else {
+        ambientLightRef.current.intensity = 0.1 + (0.5 * newDayFactor);
+      }
     }
 
-    // Update directional light intensity and color (day: white, night: bluish)
+    // Update directional light intensity and color
     if (directionalLightRef.current) {
-      directionalLightRef.current.intensity = 0.2 + (0.8 * newDayFactor);
-      
-      // Color transition: day = white (1,1,1), night = dark blue (0.2,0.3,0.6)
-      const dayColor = new THREE.Color(1, 1, 1);
-      const nightColor = new THREE.Color(0.2, 0.3, 0.6);
-      directionalLightRef.current.color.lerpColors(nightColor, dayColor, newDayFactor);
+      if (survivalTime > sunriseStartTime && survivalTime <= sunriseEndTime) {
+        // Sunrise lighting - warm orange/yellow colors
+        directionalLightRef.current.intensity = 0.2 + (1.0 * newDayFactor); // Brighter during sunrise
+        
+        const sunriseColor = new THREE.Color(1.0, 0.8, 0.5); // Warm orange-yellow
+        const nightColor = new THREE.Color(0.2, 0.3, 0.6);   // Dark blue
+        directionalLightRef.current.color.lerpColors(nightColor, sunriseColor, newDayFactor);
+      } else {
+        // Normal day/night lighting
+        directionalLightRef.current.intensity = 0.2 + (0.8 * newDayFactor);
+        
+        const dayColor = new THREE.Color(1, 1, 1);          // White
+        const nightColor = new THREE.Color(0.2, 0.3, 0.6);  // Dark blue
+        directionalLightRef.current.color.lerpColors(nightColor, dayColor, newDayFactor);
+      }
     }
 
-    // Update background color: day = sky blue, night = dark blue
+    // Update background color
     if (state.scene.background) {
-      const dayBg = new THREE.Color("#87CEEB"); // Sky blue
-      const nightBg = new THREE.Color("#0B1426"); // Dark night blue
-      const currentBg = new THREE.Color().lerpColors(nightBg, dayBg, newDayFactor);
-      (state.scene.background as THREE.Color).copy(currentBg);
+      if (survivalTime > sunriseStartTime && survivalTime <= sunriseEndTime) {
+        // Sunrise background - warm gradient
+        const sunriseBg = new THREE.Color("#FFA500");  // Orange sunrise
+        const nightBg = new THREE.Color("#0B1426");    // Dark night blue
+        const currentBg = new THREE.Color().lerpColors(nightBg, sunriseBg, newDayFactor);
+        (state.scene.background as THREE.Color).copy(currentBg);
+      } else {
+        // Normal day/night background
+        const dayBg = new THREE.Color("#87CEEB");      // Sky blue
+        const nightBg = new THREE.Color("#0B1426");    // Dark night blue
+        const currentBg = new THREE.Color().lerpColors(nightBg, dayBg, newDayFactor);
+        (state.scene.background as THREE.Color).copy(currentBg);
+      }
     }
   });
 
