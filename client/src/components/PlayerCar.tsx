@@ -127,7 +127,7 @@ export default function PlayerCar() {
         <meshStandardMaterial 
           color="#ffffff" 
           emissive="#ffffff"
-          emissiveIntensity={darkness > 0.3 ? 0.8 : 0.3}
+          emissiveIntensity={darkness > 0.3 ? 1.6 : 0.6}
         />
       </mesh>
       <mesh position={[0.5, 0.2, 1.6]}>
@@ -135,7 +135,7 @@ export default function PlayerCar() {
         <meshStandardMaterial 
           color="#ffffff" 
           emissive="#ffffff"
-          emissiveIntensity={darkness > 0.3 ? 0.8 : 0.3}
+          emissiveIntensity={darkness > 0.3 ? 1.6 : 0.6}
         />
       </mesh>
       
@@ -145,7 +145,7 @@ export default function PlayerCar() {
         target-position={[-2, 0, 10]}
         angle={0.3}
         penumbra={0.1}
-        intensity={darkness > 0.3 ? 1.2 : 0.4}
+        intensity={darkness > 0.3 ? 2.4 : 0.8}
         distance={20}
         color="#ffffff"
       />
@@ -154,7 +154,7 @@ export default function PlayerCar() {
         target-position={[2, 0, 10]}
         angle={0.3}
         penumbra={0.1}
-        intensity={darkness > 0.3 ? 1.2 : 0.4}
+        intensity={darkness > 0.3 ? 2.4 : 0.8}
         distance={20}
         color="#ffffff"
       />
@@ -165,7 +165,7 @@ export default function PlayerCar() {
         <meshStandardMaterial 
           color="#ff0000" 
           emissive="#ff0000"
-          emissiveIntensity={darkness > 0.3 ? 0.6 : 0.2}
+          emissiveIntensity={darkness > 0.3 ? 1.2 : 0.4}
         />
       </mesh>
       <mesh position={[0.6, 0.3, -1.6]}>
@@ -173,7 +173,7 @@ export default function PlayerCar() {
         <meshStandardMaterial 
           color="#ff0000" 
           emissive="#ff0000"
-          emissiveIntensity={darkness > 0.3 ? 0.6 : 0.2}
+          emissiveIntensity={darkness > 0.3 ? 1.2 : 0.4}
         />
       </mesh>
     </mesh>

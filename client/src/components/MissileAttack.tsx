@@ -33,9 +33,9 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
     if (missile.phase === 'incoming' && missileRef.current) {
       // Show incoming missile
       const missileAge = timeElapsed - 16000; // Time since missile phase started
-      if (missileAge > 0 && missileAge < 2300) {
-        // Missile falls from sky over 2.3 seconds (extremely fast, realistic missile speed)
-        const progress = missileAge / 2300;
+      if (missileAge > 0 && missileAge < 1150) {
+        // Missile falls from sky over 1.15 seconds (double as fast again)
+        const progress = missileAge / 1150;
         const y = 50 - (progress * 50); // Fall straight down from sky
         const z = 5; // Slightly farther back than before (was 10)
         
@@ -52,7 +52,7 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
   return (
     <group>
       {/* Incoming missile */}
-      <group ref={missileRef} visible={false}>
+      <group ref={missileRef} visible={false} rotation={[0, 0, Math.PI]}>
         <mesh>
           <cylinderGeometry args={[0.1, 0.3, 2]} />
           <meshStandardMaterial color="#888888" />
