@@ -51,7 +51,7 @@ export const useAudio = create<AudioState>((set, get) => ({
   policeWarningSound: null,
   policeSirenSound: null,
   isMuted: false, // Start unmuted for audio cues
-  masterVolume: 0.6, // Default to 60% volume to allow missile boost
+  masterVolume: 0.7, // Default to 70% volume
   
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
   setHitSound: (sound) => set({ hitSound: sound }),
@@ -86,7 +86,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       
       // Clone the sound to allow overlapping playback
       const soundClone = hitSound.cloneNode() as HTMLAudioElement;
-      soundClone.volume = 0.25 * masterVolume; // Reduced from 0.3
+      soundClone.volume = 0.3 * masterVolume;
       soundClone.play().catch(error => {
         console.log("Hit sound play prevented:", error);
       });
@@ -103,7 +103,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       }
       
       successSound.currentTime = 0;
-      successSound.volume = 0.5 * masterVolume; // Reduced from 0.6
+      successSound.volume = 0.6 * masterVolume;
       successSound.play().catch(error => {
         console.log("Success sound play prevented:", error);
       });
@@ -119,7 +119,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       }
       
       jetSound.currentTime = 0;
-      jetSound.volume = 0.5 * masterVolume; // Reduced from 0.6
+      jetSound.volume = 0.6 * masterVolume;
       jetSound.play().catch(error => {
         console.log("Jet sound play prevented:", error);
       });
@@ -168,7 +168,7 @@ export const useAudio = create<AudioState>((set, get) => ({
     
     if (crashSound) {
       crashSound.currentTime = 0;
-      crashSound.volume = 0.65 * masterVolume; // Reduced from 0.8
+      crashSound.volume = 0.8 * masterVolume;
       crashSound.play().catch(error => {
         console.log(`Crash sound (${laneName}) play prevented:`, error);
       });
@@ -187,7 +187,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       }
       
       policeWarningSound.currentTime = 0;
-      policeWarningSound.volume = 0.6 * masterVolume; // Reduced from 0.7
+      policeWarningSound.volume = 0.7 * masterVolume;
       policeWarningSound.play().catch(error => {
         console.log("Police warning sound play prevented:", error);
       });
@@ -204,7 +204,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       }
       
       policeSirenSound.currentTime = 0;
-      policeSirenSound.volume = 0.5 * masterVolume; // Reduced from 0.6
+      policeSirenSound.volume = 0.6 * masterVolume;
       policeSirenSound.loop = true;
       policeSirenSound.play().catch(error => {
         console.log("Police siren play prevented:", error);

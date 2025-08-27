@@ -44,12 +44,12 @@ export default function AudioManager() {
     // Load background music
     backgroundMusicRef.current = new Audio('/attached_assets/\'_1756177926740.mp3');
     backgroundMusicRef.current.loop = true;
-    backgroundMusicRef.current.volume = 0.4; // Reduced background music volume
+    backgroundMusicRef.current.volume = 0.5; // Increased background music volume
 
     // Load engine sound for continuous playback
     engineSoundRef.current = new Audio('/attached_assets/CarDrivingSustaied_1756181540499.mp3');
     engineSoundRef.current.loop = true;
-    engineSoundRef.current.volume = 0.15; // Reduced engine sound volume
+    engineSoundRef.current.volume = 0.2; // 20% volume engine sound
 
     // Load jet and missile sounds
     const jetAudio = new Audio('/attached_assets/Fighter jet sound effect_1756263897734.mp3');
@@ -264,10 +264,10 @@ export default function AudioManager() {
   const { masterVolume } = useAudio();
   useEffect(() => {
     if (backgroundMusicRef.current) {
-      backgroundMusicRef.current.volume = 0.4 * masterVolume; // Reduced from 0.5
+      backgroundMusicRef.current.volume = 0.5 * masterVolume;
     }
     if (engineSoundRef.current) {
-      engineSoundRef.current.volume = 0.15 * masterVolume; // Reduced from 0.2
+      engineSoundRef.current.volume = 0.2 * masterVolume;
     }
   }, [masterVolume]);
 
@@ -352,7 +352,7 @@ export default function AudioManager() {
       
       // Calculate volume based on distance and number of active sounds to prevent distortion
       const activeCount = activeSoundsRef.current.size;
-      const distanceVolume = Math.max(0.08, Math.min(0.25, (30 - Math.abs(distance)) / 30)); // Further reduced horn volume
+      const distanceVolume = Math.max(0.1, Math.min(0.3, (30 - Math.abs(distance)) / 30)); // Reduced horn volume
       
       // Reduce volume when multiple sounds are playing to prevent distortion
       const volumeMultiplier = activeCount > 0 ? Math.max(0.2, 1.0 / Math.sqrt(activeCount + 1)) : 1.0;
