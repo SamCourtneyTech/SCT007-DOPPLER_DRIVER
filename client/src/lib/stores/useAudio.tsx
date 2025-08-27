@@ -6,6 +6,9 @@ interface AudioState {
   successSound: HTMLAudioElement | null;
   jetSound: HTMLAudioElement | null;
   missileSound: HTMLAudioElement | null;
+  crashLeftSound: HTMLAudioElement | null;
+  crashCenterSound: HTMLAudioElement | null;
+  crashRightSound: HTMLAudioElement | null;
   isMuted: boolean;
   
   // Setter functions
@@ -14,6 +17,9 @@ interface AudioState {
   setSuccessSound: (sound: HTMLAudioElement) => void;
   setJetSound: (sound: HTMLAudioElement) => void;
   setMissileSound: (sound: HTMLAudioElement) => void;
+  setCrashLeftSound: (sound: HTMLAudioElement) => void;
+  setCrashCenterSound: (sound: HTMLAudioElement) => void;
+  setCrashRightSound: (sound: HTMLAudioElement) => void;
   
   // Control functions
   toggleMute: () => void;
@@ -21,6 +27,7 @@ interface AudioState {
   playSuccess: () => void;
   playJet: () => void;
   playMissile: () => void;
+  playCrash: (lane: number) => void;
 }
 
 export const useAudio = create<AudioState>((set, get) => ({
@@ -29,6 +36,9 @@ export const useAudio = create<AudioState>((set, get) => ({
   successSound: null,
   jetSound: null,
   missileSound: null,
+  crashLeftSound: null,
+  crashCenterSound: null,
+  crashRightSound: null,
   isMuted: false, // Start unmuted for audio cues
   
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
@@ -36,6 +46,9 @@ export const useAudio = create<AudioState>((set, get) => ({
   setSuccessSound: (sound) => set({ successSound: sound }),
   setJetSound: (sound) => set({ jetSound: sound }),
   setMissileSound: (sound) => set({ missileSound: sound }),
+  setCrashLeftSound: (sound) => set({ crashLeftSound: sound }),
+  setCrashCenterSound: (sound) => set({ crashCenterSound: sound }),
+  setCrashRightSound: (sound) => set({ crashRightSound: sound }),
   
   toggleMute: () => {
     const { isMuted } = get();
@@ -111,6 +124,40 @@ export const useAudio = create<AudioState>((set, get) => ({
       missileSound.play().catch(error => {
         console.log("Missile sound play prevented:", error);
       });
+    }
+  },
+
+  playCrash: (lane: number) => {
+    const { crashLeftSound, crashCenterSound, crashRightSound, isMuted } = get();
+    if (isMuted) {
+      console.log("Crash sound skipped (muted)");
+      return;
+    }
+
+    let crashSound: HTMLAudioElement | null = null;
+    let laneName = "";
+    
+    // Select appropriate crash sound based on lane
+    if (lane === 0) { // Left lane
+      crashSound = crashLeftSound;
+      laneName = "LEFT";
+    } else if (lane === 1) { // Center lane
+      crashSound = crashCenterSound;
+      laneName = "CENTER";
+    } else if (lane === 2) { // Right lane
+      crashSound = crashRightSound;
+      laneName = "RIGHT";
+    }
+    
+    if (crashSound) {
+      crashSound.currentTime = 0;
+      crashSound.volume = 0.8;
+      crashSound.play().catch(error => {
+        console.log(`Crash sound (${laneName}) play prevented:`, error);
+      });
+      console.log(`Playing crash sound for ${laneName} lane`);
+    } else {
+      console.log(`No crash sound available for lane ${lane} (${laneName})`);
     }
   }
 }));

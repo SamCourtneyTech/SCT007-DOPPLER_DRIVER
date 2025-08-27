@@ -147,6 +147,11 @@ export const useDriving = create<DrivingState>()(
         // Simple collision detection - if enemy is close enough to player
         if (distanceX < 1.5 && distanceZ < 2.5) {
           console.log(`Collision detected! Enemy at ${enemy.x}, ${enemy.z} vs Player at ${playerX}, ${playerZ}`);
+          
+          // Store crash info to be picked up by AudioManager
+          (window as any).gameEventBus = (window as any).gameEventBus || {};
+          (window as any).gameEventBus.lastCrash = { lane: playerLane, timestamp: Date.now() };
+          
           get().gameOver();
           break;
         }
@@ -193,6 +198,11 @@ export const useDriving = create<DrivingState>()(
           // Check if player is in the target lane
           if (playerLane === missile.targetLane) {
             console.log('Player hit by missile!');
+            
+            // Store crash info for missile impact
+            (window as any).gameEventBus = (window as any).gameEventBus || {};
+            (window as any).gameEventBus.lastCrash = { lane: playerLane, timestamp: Date.now() };
+            
             get().gameOver();
           }
           

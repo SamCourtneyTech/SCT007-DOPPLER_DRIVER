@@ -12,7 +12,7 @@ interface ActiveSound {
 
 export default function AudioManager() {
   const { enemyCars, gameState, missileAttacks } = useDriving();
-  const { isMuted, setJetSound, setMissileSound, playJet, playMissile } = useAudio();
+  const { isMuted, setJetSound, setMissileSound, setCrashLeftSound, setCrashCenterSound, setCrashRightSound, playJet, playMissile, playCrash } = useAudio();
   const audioContextRef = useRef<AudioContext | null>(null);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const engineSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -56,6 +56,14 @@ export default function AudioManager() {
     const missileAudio = new Audio('/attached_assets/MissileCenter_1756263962342.mp3');
     setJetSound(jetAudio);
     setMissileSound(missileAudio);
+
+    // Load crash sounds
+    const crashLeftAudio = new Audio('/attached_assets/CrashLeft_1756265441787.mp3');
+    const crashCenterAudio = new Audio('/attached_assets/CrashCenter_1756265402007.mp3');
+    const crashRightAudio = new Audio('/attached_assets/CrashRight_1756265439834.mp3');
+    setCrashLeftSound(crashLeftAudio);
+    setCrashCenterSound(crashCenterAudio);
+    setCrashRightSound(crashRightAudio);
 
     // Load horn sound as AudioBuffer for better control
     const loadHornSound = async () => {
@@ -400,6 +408,29 @@ export default function AudioManager() {
     }
 
   }, [missileAttacks, playJet, playMissile]);
+
+  // Monitor for crash events
+  useEffect(() => {
+    const checkCrashEvents = () => {
+      const gameEventBus = (window as any).gameEventBus;
+      if (gameEventBus && gameEventBus.lastCrash) {
+        const { lane, timestamp } = gameEventBus.lastCrash;
+        const timeSinceEvent = Date.now() - timestamp;
+        
+        // Only play if crash just happened (within last 100ms)
+        if (timeSinceEvent < 100) {
+          console.log(`Playing crash sound for lane ${lane}`);
+          playCrash(lane);
+          // Clear the event so it doesn't replay
+          delete gameEventBus.lastCrash;
+        }
+      }
+    };
+
+    const intervalId = setInterval(checkCrashEvents, 50); // Check every 50ms
+
+    return () => clearInterval(intervalId);
+  }, [playCrash]);
 
   return null; // This component doesn't render anything visible
 }
