@@ -4,7 +4,7 @@ import { useDriving } from '../lib/stores/useDriving';
 import { useAudio } from '../lib/stores/useAudio';
 
 export default function GameUI() {
-  const { gameState, survivalTime, playerLane, startGame, resetGame } = useDriving();
+  const { gameState, survivalTime, playerLane, startGame, resetGame, showLevel2 } = useDriving();
   const { isMuted, toggleMute, masterVolume, setMasterVolume } = useAudio();
 
   const formatTime = (ms: number) => {
@@ -239,6 +239,38 @@ export default function GameUI() {
                 TRY AGAIN (R)
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Level 2 Display */}
+        {showLevel2 && (
+          <div style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'rgba(255, 215, 0, 0.95)',
+            color: '#000',
+            padding: '30px 50px',
+            borderRadius: '15px',
+            fontSize: '48px',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            boxShadow: '0 8px 32px rgba(255, 215, 0, 0.5)',
+            border: '3px solid #FFD700',
+            zIndex: 2000,
+            pointerEvents: 'none',
+            animation: 'pulse 0.5s ease-in-out infinite alternate'
+          }}>
+            LEVEL 2
+            <style>
+              {`
+                @keyframes pulse {
+                  from { transform: translate(-50%, -50%) scale(1); }
+                  to { transform: translate(-50%, -50%) scale(1.05); }
+                }
+              `}
+            </style>
           </div>
         )}
 

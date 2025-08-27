@@ -27,7 +27,8 @@ export default function DrivingGame() {
     updateMissileAttacks,
     updatePoliceCars,
     triggerPoliceChase,
-    updatePoliceChase
+    updatePoliceChase,
+    checkLevel2Display
   } = useDriving();
 
   const lastSpawnTime = useRef(0);
@@ -64,6 +65,9 @@ export default function DrivingGame() {
     // Handle police chase
     triggerPoliceChase(now);
     updatePoliceChase(now);
+    
+    // Check for Level 2 display
+    checkLevel2Display(now);
     updatePoliceCars(delta);
   });
 

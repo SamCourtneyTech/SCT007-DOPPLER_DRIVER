@@ -45,6 +45,7 @@ interface DrivingState {
   lastPoliceChaseTime: number;
   gameStartTime: number;
   cameraShake: number;
+  showLevel2: boolean;
   
   // Actions
   startGame: () => void;
@@ -61,6 +62,7 @@ interface DrivingState {
   updatePoliceCars: (delta: number) => void;
   triggerPoliceChase: (currentTime: number) => void;
   updatePoliceChase: (currentTime: number) => void;
+  checkLevel2Display: (currentTime: number) => void;
 }
 
 export const useDriving = create<DrivingState>()(
@@ -77,6 +79,7 @@ export const useDriving = create<DrivingState>()(
     lastPoliceChaseTime: 0,
     gameStartTime: 0,
     cameraShake: 0,
+    showLevel2: false,
     
     startGame: () => {
       console.log('Game started');
@@ -91,6 +94,7 @@ export const useDriving = create<DrivingState>()(
         lastPoliceChaseTime: 0,
         gameStartTime: Date.now(),
         cameraShake: 0,
+        showLevel2: false,
         playerLane: 1,
         playerZ: -8
       });
@@ -197,14 +201,14 @@ export const useDriving = create<DrivingState>()(
     triggerMissileAttack: (currentTime: number) => {
       const { lastMissileTime, missileAttacks, gameStartTime } = get();
       
-      // Don't start missiles until 2 minutes (120 seconds) into the game
+      // Don't start missiles until 1.5 minutes (90 seconds) into the game
       const timeSinceGameStart = currentTime - gameStartTime;
-      if (timeSinceGameStart < 120000) return;
+      if (timeSinceGameStart < 90000) return;
       
       // Don't trigger if there's already an active missile or one was triggered recently
       if (missileAttacks.length > 0 || currentTime - lastMissileTime < 30000) return;
       
-      // Random chance to trigger after 2 minute mark
+      // Random chance to trigger after 90 second mark
       if (Math.random() < 0.003) { // Reduced chance since they start later
         const targetLane = Math.floor(Math.random() * 3);
         const newMissile: MissileAttack = {
@@ -356,6 +360,25 @@ export const useDriving = create<DrivingState>()(
       });
       
       set({ policeCars: updatedPoliceCars });
+    },
+
+    checkLevel2Display: (currentTime: number) => {
+      const { gameStartTime, showLevel2 } = get();
+      
+      // Show "Level 2" at 2 minutes 19 seconds (139 seconds)
+      const timeSinceGameStart = currentTime - gameStartTime;
+      if (timeSinceGameStart >= 139000 && timeSinceGameStart <= 142000 && !showLevel2) {
+        console.log('Level 2 display triggered!');
+        set({ showLevel2: true });
+        
+        // Hide the display after 3 seconds
+        setTimeout(() => {
+          const currentState = get();
+          if (currentState.showLevel2) {
+            set({ showLevel2: false });
+          }
+        }, 3000);
+      }
     }
   }))
 );
