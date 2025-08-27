@@ -53,50 +53,46 @@ export default function EnemyCar({ enemy }: EnemyCarProps) {
         <meshLambertMaterial color="#222222" />
       </mesh>
 
-      {/* Headlights - only visible when dark enough */}
-      {darkness > 0.3 && (
-        <>
-          <mesh position={[-0.4, 0.15, -1.5]}>
-            <sphereGeometry args={[0.12, 8, 8]} />
-            <meshStandardMaterial 
-              color="#ffffff" 
-              emissive="#ffffff"
-              emissiveIntensity={0.7}
-            />
-          </mesh>
-          <mesh position={[0.4, 0.15, -1.5]}>
-            <sphereGeometry args={[0.12, 8, 8]} />
-            <meshStandardMaterial 
-              color="#ffffff" 
-              emissive="#ffffff"
-              emissiveIntensity={0.7}
-            />
-          </mesh>
-          
-          {/* Headlight beams for approaching enemies */}
-          <spotLight
-            position={[-0.4, 0.15, -1.5]}
-            target-position={[-2, 0, -10]}
-            angle={0.25}
-            penumbra={0.1}
-            intensity={0.8}
-            distance={15}
-            color="#ffffff"
-          />
-          <spotLight
-            position={[0.4, 0.15, -1.5]}
-            target-position={[2, 0, -10]}
-            angle={0.25}
-            penumbra={0.1}
-            intensity={0.8}
-            distance={15}
-            color="#ffffff"
-          />
-        </>
-      )}
+      {/* Headlights - always on, brighter at night */}
+      <mesh position={[-0.4, 0.15, 1.5]}>
+        <sphereGeometry args={[0.12, 8, 8]} />
+        <meshStandardMaterial 
+          color="#ffffff" 
+          emissive="#ffffff"
+          emissiveIntensity={darkness > 0.3 ? 0.7 : 0.25}
+        />
+      </mesh>
+      <mesh position={[0.4, 0.15, 1.5]}>
+        <sphereGeometry args={[0.12, 8, 8]} />
+        <meshStandardMaterial 
+          color="#ffffff" 
+          emissive="#ffffff"
+          emissiveIntensity={darkness > 0.3 ? 0.7 : 0.25}
+        />
+      </mesh>
+      
+      {/* Headlight beams for approaching enemies - always on, stronger at night */}
+      <spotLight
+        position={[-0.4, 0.15, 1.5]}
+        target-position={[-2, 0, 10]}
+        angle={0.25}
+        penumbra={0.1}
+        intensity={darkness > 0.3 ? 1.0 : 0.3}
+        distance={15}
+        color="#ffffff"
+      />
+      <spotLight
+        position={[0.4, 0.15, 1.5]}
+        target-position={[2, 0, 10]}
+        angle={0.25}
+        penumbra={0.1}
+        intensity={darkness > 0.3 ? 1.0 : 0.3}
+        distance={15}
+        color="#ffffff"
+      />
 
       {/* Brake lights - always visible but more prominent at night */}
-      <mesh position={[-0.5, 0.25, 1.5]}>
+      <mesh position={[-0.5, 0.25, -1.5]}>
         <sphereGeometry args={[0.08, 8, 8]} />
         <meshStandardMaterial 
           color="#ff0000" 
@@ -104,7 +100,7 @@ export default function EnemyCar({ enemy }: EnemyCarProps) {
           emissiveIntensity={darkness > 0.3 ? 0.5 : 0.15}
         />
       </mesh>
-      <mesh position={[0.5, 0.25, 1.5]}>
+      <mesh position={[0.5, 0.25, -1.5]}>
         <sphereGeometry args={[0.08, 8, 8]} />
         <meshStandardMaterial 
           color="#ff0000" 
