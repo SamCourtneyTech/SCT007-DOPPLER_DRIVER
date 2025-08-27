@@ -33,17 +33,16 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
     if (missile.phase === 'incoming' && missileRef.current) {
       // Show incoming missile
       const missileAge = timeElapsed - 16000; // Time since missile phase started
-      if (missileAge > 0 && missileAge < 7000) {
-        // Missile falls from sky over 7 seconds (twice as fast animation)
-        const progress = missileAge / 7000;
-        const y = 50 - (progress * 50); // Fall from sky
+      if (missileAge > 0 && missileAge < 2300) {
+        // Missile falls from sky over 2.3 seconds (extremely fast, realistic missile speed)
+        const progress = missileAge / 2300;
+        const y = 50 - (progress * 50); // Fall straight down from sky
         const z = 5; // Slightly farther back than before (was 10)
         
         missileRef.current.position.set(targetX, y, z);
         missileRef.current.visible = true;
         
-        // Add rotation for visual effect
-        missileRef.current.rotation.z = progress * Math.PI * 2;
+        // No rotation - missile falls straight down like a real missile
       } else {
         missileRef.current.visible = false;
       }
