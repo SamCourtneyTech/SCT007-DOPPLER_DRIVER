@@ -7,17 +7,21 @@ import EnemyCar from './EnemyCar';
 import Road from './Road';
 import GameUI from './GameUI';
 import AudioManager from './AudioManager';
+import MissileAttack from './MissileAttack';
 
 export default function DrivingGame() {
   const { 
     gameState, 
     survivalTime, 
     enemyCars, 
+    missileAttacks,
     spawnEnemy, 
     updateEnemies, 
     checkCollisions,
     updateSurvivalTime,
-    gameOver 
+    gameOver,
+    triggerMissileAttack,
+    updateMissileAttacks
   } = useDriving();
 
   const lastSpawnTime = useRef(0);
@@ -27,11 +31,12 @@ export default function DrivingGame() {
   useFrame((state, delta) => {
     if (gameState !== 'playing') return;
 
+    const now = Date.now();
+    
     // Update survival time
-    updateSurvivalTime(Date.now() - gameStartTime.current);
+    updateSurvivalTime(now - gameStartTime.current);
 
     // Spawn enemies periodically
-    const now = Date.now();
     const timeSinceLastSpawn = now - lastSpawnTime.current;
     const spawnInterval = 1500; // Constant spawn rate for consistent audio timing
 
@@ -45,6 +50,10 @@ export default function DrivingGame() {
 
     // Check for collisions
     checkCollisions();
+
+    // Handle missile attacks
+    triggerMissileAttack(now);
+    updateMissileAttacks(now);
   });
 
   // Reset game start time when game starts
@@ -60,6 +69,9 @@ export default function DrivingGame() {
       <PlayerCar />
       {enemyCars.map(enemy => (
         <EnemyCar key={enemy.id} enemy={enemy} />
+      ))}
+      {missileAttacks.map(missile => (
+        <MissileAttack key={missile.id} missile={missile} />
       ))}
       <AudioManager />
       <GameUI />

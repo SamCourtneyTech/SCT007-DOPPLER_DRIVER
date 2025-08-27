@@ -11,12 +11,21 @@ export interface EnemyCar {
   speed: number;
 }
 
+export interface MissileAttack {
+  id: string;
+  targetLane: number;
+  startTime: number;
+  phase: 'warning' | 'incoming' | 'impact'; // warning = jet sound, incoming = missile sound, impact = hit
+}
+
 interface DrivingState {
   gameState: GameState;
   playerLane: number; // 0 = left, 1 = center, 2 = right
   playerZ: number; // Player's forward/backward position
   survivalTime: number;
   enemyCars: EnemyCar[];
+  missileAttacks: MissileAttack[];
+  lastMissileTime: number;
   
   // Actions
   startGame: () => void;
@@ -28,6 +37,8 @@ interface DrivingState {
   spawnEnemy: () => void;
   updateEnemies: (delta: number) => void;
   checkCollisions: () => void;
+  updateMissileAttacks: (currentTime: number) => void;
+  triggerMissileAttack: (currentTime: number) => void;
 }
 
 export const useDriving = create<DrivingState>()(
@@ -37,6 +48,8 @@ export const useDriving = create<DrivingState>()(
     playerZ: -8, // Starting Z position
     survivalTime: 0,
     enemyCars: [],
+    missileAttacks: [],
+    lastMissileTime: 0,
     
     startGame: () => {
       console.log('Game started');
@@ -44,6 +57,8 @@ export const useDriving = create<DrivingState>()(
         gameState: 'playing',
         survivalTime: 0,
         enemyCars: [],
+        missileAttacks: [],
+        lastMissileTime: 0,
         playerLane: 1,
         playerZ: -8
       });
@@ -55,6 +70,8 @@ export const useDriving = create<DrivingState>()(
         gameState: 'ready',
         survivalTime: 0,
         enemyCars: [],
+        missileAttacks: [],
+        lastMissileTime: 0,
         playerLane: 1,
         playerZ: -8
       });
@@ -134,6 +151,65 @@ export const useDriving = create<DrivingState>()(
           break;
         }
       }
+    },
+
+    triggerMissileAttack: (currentTime: number) => {
+      const { lastMissileTime, missileAttacks } = get();
+      
+      // Don't trigger if there's already an active missile or one was triggered recently
+      if (missileAttacks.length > 0 || currentTime - lastMissileTime < 30000) return;
+      
+      // Random chance to trigger (increased for testing - normally would be 0.001 for ~2-3 minutes)
+      if (Math.random() < 0.005) { // 0.5% chance per frame check (about every 10-20 seconds for testing)
+        const targetLane = Math.floor(Math.random() * 3);
+        const newMissile: MissileAttack = {
+          id: `missile_${Date.now()}`,
+          targetLane,
+          startTime: currentTime,
+          phase: 'warning'
+        };
+        
+        console.log(`Missile attack triggered! Target lane: ${targetLane}`);
+        set({ 
+          missileAttacks: [newMissile],
+          lastMissileTime: currentTime
+        });
+      }
+    },
+
+    updateMissileAttacks: (currentTime: number) => {
+      const { missileAttacks, playerLane, gameState } = get();
+      
+      if (gameState !== 'playing' || missileAttacks.length === 0) return;
+      
+      const updatedMissiles = missileAttacks.map(missile => {
+        const timeElapsed = currentTime - missile.startTime;
+        
+        // Phase transitions based on timing
+        if (timeElapsed >= 20000 && missile.phase !== 'impact') {
+          // 20 seconds: Impact
+          console.log(`Missile impact in lane ${missile.targetLane}!`);
+          
+          // Check if player is in the target lane
+          if (playerLane === missile.targetLane) {
+            console.log('Player hit by missile!');
+            get().gameOver();
+          }
+          
+          return { ...missile, phase: 'impact' as const };
+        } else if (timeElapsed >= 14000 && missile.phase === 'warning') {
+          // 14 seconds: Missile incoming sound
+          console.log(`Missile incoming for lane ${missile.targetLane}!`);
+          return { ...missile, phase: 'incoming' as const };
+        }
+        
+        return missile;
+      }).filter(missile => {
+        const timeElapsed = currentTime - missile.startTime;
+        return timeElapsed < 22000; // Remove missile after 22 seconds
+      });
+      
+      set({ missileAttacks: updatedMissiles });
     }
   }))
 );

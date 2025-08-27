@@ -11,8 +11,8 @@ interface ActiveSound {
 }
 
 export default function AudioManager() {
-  const { enemyCars, gameState } = useDriving();
-  const { isMuted } = useAudio();
+  const { enemyCars, gameState, missileAttacks } = useDriving();
+  const { isMuted, setJetSound, setMissileSound, playJet, playMissile } = useAudio();
   const audioContextRef = useRef<AudioContext | null>(null);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const engineSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -50,6 +50,12 @@ export default function AudioManager() {
     engineSoundRef.current = new Audio('/attached_assets/CarDrivingSustaied_1756181540499.mp3');
     engineSoundRef.current.loop = true;
     engineSoundRef.current.volume = 0.2; // 20% volume engine sound
+
+    // Load jet and missile sounds
+    const jetAudio = new Audio('/attached_assets/Fighter jet sound effect_1756263897734.mp3');
+    const missileAudio = new Audio('/attached_assets/MissileCenter_1756263962342.mp3');
+    setJetSound(jetAudio);
+    setMissileSound(missileAudio);
 
     // Load horn sound as AudioBuffer for better control
     const loadHornSound = async () => {
@@ -372,6 +378,28 @@ export default function AudioManager() {
       console.log('Audio play prevented:', error);
     }
   };
+
+  // Monitor missile attacks and play sounds at the right time
+  useEffect(() => {
+    if (missileAttacks.length === 0) return;
+
+    const missile = missileAttacks[0]; // Only handle one missile at a time
+    const currentTime = Date.now();
+    const timeElapsed = currentTime - missile.startTime;
+
+    // Play jet sound when warning phase starts (immediately)
+    if (missile.phase === 'warning' && timeElapsed < 1000) { // Only play once
+      console.log('Playing jet warning sound');
+      playJet();
+    }
+    
+    // Play missile sound when incoming phase starts (after 14 seconds)
+    else if (missile.phase === 'incoming' && timeElapsed >= 14000 && timeElapsed < 15000) { // Only play once
+      console.log('Playing missile incoming sound');
+      playMissile();
+    }
+
+  }, [missileAttacks, playJet, playMissile]);
 
   return null; // This component doesn't render anything visible
 }

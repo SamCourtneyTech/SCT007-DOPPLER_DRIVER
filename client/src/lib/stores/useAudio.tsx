@@ -4,28 +4,38 @@ interface AudioState {
   backgroundMusic: HTMLAudioElement | null;
   hitSound: HTMLAudioElement | null;
   successSound: HTMLAudioElement | null;
+  jetSound: HTMLAudioElement | null;
+  missileSound: HTMLAudioElement | null;
   isMuted: boolean;
   
   // Setter functions
   setBackgroundMusic: (music: HTMLAudioElement) => void;
   setHitSound: (sound: HTMLAudioElement) => void;
   setSuccessSound: (sound: HTMLAudioElement) => void;
+  setJetSound: (sound: HTMLAudioElement) => void;
+  setMissileSound: (sound: HTMLAudioElement) => void;
   
   // Control functions
   toggleMute: () => void;
   playHit: () => void;
   playSuccess: () => void;
+  playJet: () => void;
+  playMissile: () => void;
 }
 
 export const useAudio = create<AudioState>((set, get) => ({
   backgroundMusic: null,
   hitSound: null,
   successSound: null,
+  jetSound: null,
+  missileSound: null,
   isMuted: false, // Start unmuted for audio cues
   
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
   setHitSound: (sound) => set({ hitSound: sound }),
   setSuccessSound: (sound) => set({ successSound: sound }),
+  setJetSound: (sound) => set({ jetSound: sound }),
+  setMissileSound: (sound) => set({ missileSound: sound }),
   
   toggleMute: () => {
     const { isMuted } = get();
@@ -68,6 +78,38 @@ export const useAudio = create<AudioState>((set, get) => ({
       successSound.currentTime = 0;
       successSound.play().catch(error => {
         console.log("Success sound play prevented:", error);
+      });
+    }
+  },
+
+  playJet: () => {
+    const { jetSound, isMuted } = get();
+    if (jetSound) {
+      if (isMuted) {
+        console.log("Jet sound skipped (muted)");
+        return;
+      }
+      
+      jetSound.currentTime = 0;
+      jetSound.volume = 0.6;
+      jetSound.play().catch(error => {
+        console.log("Jet sound play prevented:", error);
+      });
+    }
+  },
+
+  playMissile: () => {
+    const { missileSound, isMuted } = get();
+    if (missileSound) {
+      if (isMuted) {
+        console.log("Missile sound skipped (muted)");
+        return;
+      }
+      
+      missileSound.currentTime = 0;
+      missileSound.volume = 0.7;
+      missileSound.play().catch(error => {
+        console.log("Missile sound play prevented:", error);
       });
     }
   }
