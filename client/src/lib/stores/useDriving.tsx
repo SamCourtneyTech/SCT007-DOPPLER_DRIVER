@@ -18,6 +18,20 @@ export interface MissileAttack {
   phase: 'warning' | 'incoming' | 'impact'; // warning = jet sound, incoming = missile sound, impact = hit
 }
 
+export interface PoliceCar {
+  id: string;
+  lane: number; // 0, 1, or 2
+  x: number;
+  z: number;
+  speed: number;
+}
+
+export interface PoliceChase {
+  id: string;
+  startTime: number;
+  active: boolean;
+}
+
 interface DrivingState {
   gameState: GameState;
   playerLane: number; // 0 = left, 1 = center, 2 = right
@@ -26,6 +40,10 @@ interface DrivingState {
   enemyCars: EnemyCar[];
   missileAttacks: MissileAttack[];
   lastMissileTime: number;
+  policeCars: PoliceCar[];
+  policeChase: PoliceChase | null;
+  lastPoliceChaseTime: number;
+  cameraShake: number;
   
   // Actions
   startGame: () => void;
@@ -39,6 +57,9 @@ interface DrivingState {
   checkCollisions: () => void;
   updateMissileAttacks: (currentTime: number) => void;
   triggerMissileAttack: (currentTime: number) => void;
+  updatePoliceCars: (delta: number) => void;
+  triggerPoliceChase: (currentTime: number) => void;
+  updatePoliceChase: (currentTime: number) => void;
 }
 
 export const useDriving = create<DrivingState>()(
@@ -50,6 +71,10 @@ export const useDriving = create<DrivingState>()(
     enemyCars: [],
     missileAttacks: [],
     lastMissileTime: 0,
+    policeCars: [],
+    policeChase: null,
+    lastPoliceChaseTime: 0,
+    cameraShake: 0,
     
     startGame: () => {
       console.log('Game started');
@@ -59,6 +84,10 @@ export const useDriving = create<DrivingState>()(
         enemyCars: [],
         missileAttacks: [],
         lastMissileTime: 0,
+        policeCars: [],
+        policeChase: null,
+        lastPoliceChaseTime: 0,
+        cameraShake: 0,
         playerLane: 1,
         playerZ: -8
       });
@@ -72,6 +101,10 @@ export const useDriving = create<DrivingState>()(
         enemyCars: [],
         missileAttacks: [],
         lastMissileTime: 0,
+        policeCars: [],
+        policeChase: null,
+        lastPoliceChaseTime: 0,
+        cameraShake: 0,
         playerLane: 1,
         playerZ: -8
       });
@@ -195,6 +228,12 @@ export const useDriving = create<DrivingState>()(
           // 23 seconds: Impact
           console.log(`Missile impact in lane ${missile.targetLane}!`);
           
+          // Trigger camera shake effect
+          set({ cameraShake: 10 });
+          setTimeout(() => {
+            set({ cameraShake: 0 });
+          }, 1000);
+          
           // Check if player is in the target lane
           if (playerLane === missile.targetLane) {
             console.log('Player hit by missile!');
@@ -220,6 +259,90 @@ export const useDriving = create<DrivingState>()(
       });
       
       set({ missileAttacks: updatedMissiles });
+    },
+
+    updatePoliceCars: (delta: number) => {
+      const { policeCars, playerZ } = get();
+      
+      // Update police car positions
+      const updatedPoliceCars = policeCars.map(car => ({
+        ...car,
+        z: car.z - car.speed * delta
+      })).filter(car => car.z > -50); // Remove cars that have gone too far
+      
+      set({ policeCars: updatedPoliceCars });
+    },
+
+    triggerPoliceChase: (currentTime: number) => {
+      const { survivalTime, lastPoliceChaseTime } = get();
+      
+      // Trigger police chase every 30-40 seconds
+      const timeSinceLastChase = currentTime - lastPoliceChaseTime;
+      const nextChaseInterval = 30000 + (Math.random() * 10000); // 30-40 seconds
+      
+      if (timeSinceLastChase >= nextChaseInterval && !get().policeChase) {
+        console.log('Police chase starting!');
+        
+        // Create 3 police cars in all lanes behind player
+        const newPoliceCars: PoliceCar[] = [0, 1, 2].map(lane => ({
+          id: `police_${Date.now()}_${lane}`,
+          lane,
+          x: lane === 0 ? -4 : lane === 1 ? 0 : 4,
+          z: -20, // Start behind player
+          speed: 12 // Faster than regular enemies
+        }));
+        
+        const newChase: PoliceChase = {
+          id: `chase_${Date.now()}`,
+          startTime: currentTime,
+          active: true
+        };
+        
+        set({ 
+          policeCars: newPoliceCars, 
+          policeChase: newChase,
+          lastPoliceChaseTime: currentTime 
+        });
+      }
+    },
+
+    updatePoliceChase: (currentTime: number) => {
+      const { policeChase, policeCars, playerLane, playerZ } = get();
+      
+      if (!policeChase || !policeChase.active) return;
+      
+      const chaseElapsed = currentTime - policeChase.startTime;
+      
+      if (chaseElapsed >= 20000) {
+        // After 20 seconds, police cars retreat
+        console.log('Police chase ending - cars retreating');
+        set({ 
+          policeChase: null,
+          policeCars: [] 
+        });
+        return;
+      }
+      
+      // Update police car behavior during chase
+      const updatedPoliceCars = policeCars.map(car => {
+        // Police cars try to push player to center lane
+        let targetZ = playerZ - 5; // Stay behind player but get closer
+        
+        // Push towards center logic
+        if (playerLane !== 1) { // If player is not in center
+          if (car.lane === playerLane) {
+            // Police car in same lane as player gets more aggressive
+            targetZ = playerZ - 3;
+          }
+        }
+        
+        return {
+          ...car,
+          z: Math.min(car.z + (car.speed * 0.016), targetZ) // Move forward but don't overtake
+        };
+      });
+      
+      set({ policeCars: updatedPoliceCars });
     }
   }))
 );

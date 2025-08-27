@@ -21,10 +21,12 @@ Preferred communication style: Simple, everyday language.
 - **Modular Storage Interface**: Abstracted storage layer supporting both in-memory and database implementations
 
 ## Game Architecture
-- **Component-based 3D Scene**: Separate components for player car, enemy cars, road, and UI elements
+- **Component-based 3D Scene**: Separate components for player car, enemy cars, police cars, road, and UI elements
 - **Real-time Game Loop**: Frame-based updates using React Three Fiber's useFrame hook
 - **Lane-based Movement**: Three-lane system with keyboard controls for left/right movement
 - **Collision Detection**: Spatial collision checking between player and enemy vehicles
+- **Police Chase System**: 3 police cars spawn every 30-40 seconds behind player, push toward center lane for 20 seconds then retreat
+- **Missile Attack System**: Fighter jet missile attacks with 3-phase system (warning sound, incoming missile, impact with camera shake)
 - **Constant Difficulty**: Enemy spawn rate remains consistent for predictable audio timing
 - **Day/Night Cycle**: Dynamic lighting system that transitions from day to night at 2-minute mark with smooth 10-second transition
 

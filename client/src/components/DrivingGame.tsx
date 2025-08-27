@@ -8,7 +8,7 @@ import Road from './Road';
 import GameUI from './GameUI';
 import AudioManager from './AudioManager';
 import MissileAttack from './MissileAttack';
-import PlaneShadow from './PlaneShadow';
+import PoliceCar from './PoliceCar';
 
 export default function DrivingGame() {
   const { 
@@ -16,13 +16,18 @@ export default function DrivingGame() {
     survivalTime, 
     enemyCars, 
     missileAttacks,
+    policeCars,
+    cameraShake,
     spawnEnemy, 
     updateEnemies, 
     checkCollisions,
     updateSurvivalTime,
     gameOver,
     triggerMissileAttack,
-    updateMissileAttacks
+    updateMissileAttacks,
+    updatePoliceCars,
+    triggerPoliceChase,
+    updatePoliceChase
   } = useDriving();
 
   const lastSpawnTime = useRef(0);
@@ -55,6 +60,11 @@ export default function DrivingGame() {
     // Handle missile attacks
     triggerMissileAttack(now);
     updateMissileAttacks(now);
+    
+    // Handle police chase
+    triggerPoliceChase(now);
+    updatePoliceChase(now);
+    updatePoliceCars(delta);
   });
 
   // Reset game start time when game starts
@@ -67,14 +77,18 @@ export default function DrivingGame() {
   return (
     <>
       <Road />
-      <PlayerCar />
-      {enemyCars.map(enemy => (
-        <EnemyCar key={enemy.id} enemy={enemy} />
-      ))}
-      {missileAttacks.map(missile => (
-        <MissileAttack key={missile.id} missile={missile} />
-      ))}
-      <PlaneShadow />
+      <group position={[0, 0, 0]} rotation={[cameraShake * 0.02, cameraShake * 0.01, 0]}>
+        <PlayerCar />
+        {enemyCars.map(enemy => (
+          <EnemyCar key={enemy.id} enemy={enemy} />
+        ))}
+        {policeCars.map(police => (
+          <PoliceCar key={police.id} car={police} />
+        ))}
+        {missileAttacks.map(missile => (
+          <MissileAttack key={missile.id} missile={missile} />
+        ))}
+      </group>
       <AudioManager />
       <GameUI />
     </>
