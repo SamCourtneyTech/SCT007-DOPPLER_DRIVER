@@ -228,12 +228,6 @@ export const useDriving = create<DrivingState>()(
           // 23 seconds: Impact
           console.log(`Missile impact in lane ${missile.targetLane}!`);
           
-          // Trigger camera shake effect
-          set({ cameraShake: 10 });
-          setTimeout(() => {
-            set({ cameraShake: 0 });
-          }, 1000);
-          
           // Check if player is in the target lane
           if (playerLane === missile.targetLane) {
             console.log('Player hit by missile!');

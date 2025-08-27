@@ -77,18 +77,16 @@ export default function DrivingGame() {
   return (
     <>
       <Road />
-      <group position={[0, 0, 0]} rotation={[cameraShake * 0.02, cameraShake * 0.01, 0]}>
-        <PlayerCar />
-        {enemyCars.map(enemy => (
-          <EnemyCar key={enemy.id} enemy={enemy} />
-        ))}
-        {policeCars.map(police => (
-          <PoliceCar key={police.id} car={police} />
-        ))}
-        {missileAttacks.map(missile => (
-          <MissileAttack key={missile.id} missile={missile} />
-        ))}
-      </group>
+      <PlayerCar />
+      {enemyCars.map(enemy => (
+        <EnemyCar key={enemy.id} enemy={enemy} />
+      ))}
+      {policeCars.map(police => (
+        <PoliceCar key={police.id} car={police} />
+      ))}
+      {missileAttacks.map(missile => (
+        <MissileAttack key={missile.id} missile={missile} />
+      ))}
       <AudioManager />
       <GameUI />
     </>
