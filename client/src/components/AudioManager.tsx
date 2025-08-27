@@ -260,6 +260,17 @@ export default function AudioManager() {
     }
   }, [gameState, isMuted]);
 
+  // Update volumes when master volume changes
+  const { masterVolume } = useAudio();
+  useEffect(() => {
+    if (backgroundMusicRef.current) {
+      backgroundMusicRef.current.volume = 0.5 * masterVolume;
+    }
+    if (engineSoundRef.current) {
+      engineSoundRef.current.volume = 0.2 * masterVolume;
+    }
+  }, [masterVolume]);
+
   // Function to select center horn sound based on probabilities
   const selectCenterHornBuffer = (): AudioBuffer | null => {
     const random = Math.random();
@@ -345,7 +356,7 @@ export default function AudioManager() {
       
       // Reduce volume when multiple sounds are playing to prevent distortion
       const volumeMultiplier = activeCount > 0 ? Math.max(0.2, 1.0 / Math.sqrt(activeCount + 1)) : 1.0;
-      const finalVolume = distanceVolume * volumeMultiplier;
+      const finalVolume = distanceVolume * volumeMultiplier * masterVolume;
       
       gainNode.gain.value = finalVolume;
       

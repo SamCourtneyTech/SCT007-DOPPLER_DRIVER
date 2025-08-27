@@ -12,6 +12,7 @@ interface AudioState {
   policeWarningSound: HTMLAudioElement | null;
   policeSirenSound: HTMLAudioElement | null;
   isMuted: boolean;
+  masterVolume: number;
   
   // Setter functions
   setBackgroundMusic: (music: HTMLAudioElement) => void;
@@ -35,6 +36,7 @@ interface AudioState {
   playPoliceWarning: () => void;
   playPoliceSiren: () => void;
   stopPoliceSiren: () => void;
+  setMasterVolume: (volume: number) => void;
 }
 
 export const useAudio = create<AudioState>((set, get) => ({
@@ -49,6 +51,7 @@ export const useAudio = create<AudioState>((set, get) => ({
   policeWarningSound: null,
   policeSirenSound: null,
   isMuted: false, // Start unmuted for audio cues
+  masterVolume: 0.7, // Default to 70% volume
   
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
   setHitSound: (sound) => set({ hitSound: sound }),
@@ -73,7 +76,7 @@ export const useAudio = create<AudioState>((set, get) => ({
   },
   
   playHit: () => {
-    const { hitSound, isMuted } = get();
+    const { hitSound, isMuted, masterVolume } = get();
     if (hitSound) {
       // If sound is muted, don't play anything
       if (isMuted) {
@@ -83,7 +86,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       
       // Clone the sound to allow overlapping playback
       const soundClone = hitSound.cloneNode() as HTMLAudioElement;
-      soundClone.volume = 0.3;
+      soundClone.volume = 0.3 * masterVolume;
       soundClone.play().catch(error => {
         console.log("Hit sound play prevented:", error);
       });
@@ -91,7 +94,7 @@ export const useAudio = create<AudioState>((set, get) => ({
   },
   
   playSuccess: () => {
-    const { successSound, isMuted } = get();
+    const { successSound, isMuted, masterVolume } = get();
     if (successSound) {
       // If sound is muted, don't play anything
       if (isMuted) {
@@ -100,6 +103,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       }
       
       successSound.currentTime = 0;
+      successSound.volume = 0.6 * masterVolume;
       successSound.play().catch(error => {
         console.log("Success sound play prevented:", error);
       });
@@ -107,7 +111,7 @@ export const useAudio = create<AudioState>((set, get) => ({
   },
 
   playJet: () => {
-    const { jetSound, isMuted } = get();
+    const { jetSound, isMuted, masterVolume } = get();
     if (jetSound) {
       if (isMuted) {
         console.log("Jet sound skipped (muted)");
@@ -115,7 +119,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       }
       
       jetSound.currentTime = 0;
-      jetSound.volume = 0.6;
+      jetSound.volume = 0.6 * masterVolume;
       jetSound.play().catch(error => {
         console.log("Jet sound play prevented:", error);
       });
@@ -123,34 +127,25 @@ export const useAudio = create<AudioState>((set, get) => ({
   },
 
   playMissile: () => {
-    const { missileSound, isMuted } = get();
+    const { missileSound, isMuted, masterVolume } = get();
     if (missileSound) {
       if (isMuted) {
         console.log("Missile sound skipped (muted)");
         return;
       }
       
-      // Create audio context for gain amplification
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const source = audioContext.createMediaElementSource(missileSound);
-      const gainNode = audioContext.createGain();
-      
-      // Amplify by 20% (1.2x)
-      gainNode.gain.value = 1.2;
-      
-      source.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      missileSound.currentTime = 0;
-      missileSound.volume = 1.0; // Base volume at max
-      missileSound.play().catch(error => {
+      // Clone the sound to avoid MediaElementSource conflicts
+      const soundClone = missileSound.cloneNode() as HTMLAudioElement;
+      soundClone.currentTime = 0;
+      soundClone.volume = 1.0 * 1.2 * masterVolume; // 20% boost + master volume
+      soundClone.play().catch(error => {
         console.log("Missile sound play prevented:", error);
       });
     }
   },
 
   playCrash: (lane: number) => {
-    const { crashLeftSound, crashCenterSound, crashRightSound, isMuted } = get();
+    const { crashLeftSound, crashCenterSound, crashRightSound, isMuted, masterVolume } = get();
     if (isMuted) {
       console.log("Crash sound skipped (muted)");
       return;
@@ -173,7 +168,7 @@ export const useAudio = create<AudioState>((set, get) => ({
     
     if (crashSound) {
       crashSound.currentTime = 0;
-      crashSound.volume = 0.8;
+      crashSound.volume = 0.8 * masterVolume;
       crashSound.play().catch(error => {
         console.log(`Crash sound (${laneName}) play prevented:`, error);
       });
@@ -184,7 +179,7 @@ export const useAudio = create<AudioState>((set, get) => ({
   },
 
   playPoliceWarning: () => {
-    const { policeWarningSound, isMuted } = get();
+    const { policeWarningSound, isMuted, masterVolume } = get();
     if (policeWarningSound) {
       if (isMuted) {
         console.log("Police warning sound skipped (muted)");
@@ -192,7 +187,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       }
       
       policeWarningSound.currentTime = 0;
-      policeWarningSound.volume = 0.7;
+      policeWarningSound.volume = 0.7 * masterVolume;
       policeWarningSound.play().catch(error => {
         console.log("Police warning sound play prevented:", error);
       });
@@ -201,7 +196,7 @@ export const useAudio = create<AudioState>((set, get) => ({
   },
 
   playPoliceSiren: () => {
-    const { policeSirenSound, isMuted } = get();
+    const { policeSirenSound, isMuted, masterVolume } = get();
     if (policeSirenSound) {
       if (isMuted) {
         console.log("Police siren skipped (muted)");
@@ -209,7 +204,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       }
       
       policeSirenSound.currentTime = 0;
-      policeSirenSound.volume = 0.6;
+      policeSirenSound.volume = 0.6 * masterVolume;
       policeSirenSound.loop = true;
       policeSirenSound.play().catch(error => {
         console.log("Police siren play prevented:", error);
@@ -226,5 +221,9 @@ export const useAudio = create<AudioState>((set, get) => ({
       policeSirenSound.loop = false;
       console.log("Stopped police siren");
     }
+  },
+
+  setMasterVolume: (volume: number) => {
+    set({ masterVolume: Math.max(0, Math.min(1, volume)) });
   }
 }));

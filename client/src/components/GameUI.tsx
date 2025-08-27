@@ -5,7 +5,7 @@ import { useAudio } from '../lib/stores/useAudio';
 
 export default function GameUI() {
   const { gameState, survivalTime, playerLane, startGame, resetGame } = useDriving();
-  const { isMuted, toggleMute } = useAudio();
+  const { isMuted, toggleMute, masterVolume, setMasterVolume } = useAudio();
 
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
@@ -27,21 +27,63 @@ export default function GameUI() {
         fontFamily: 'Inter, sans-serif',
       }}>
         
-        {/* Timer - Top Left */}
+        {/* Volume Controls - Top Left */}
         {gameState === 'playing' && (
           <div style={{
             position: 'absolute',
             top: '20px',
             left: '20px',
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            color: 'white',
-            padding: '12px 18px',
-            borderRadius: '8px',
-            fontSize: '20px',
-            fontWeight: 'bold',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px'
           }}>
-            {formatTime(survivalTime)}
+            {/* Timer */}
+            <div style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              color: 'white',
+              padding: '12px 18px',
+              borderRadius: '8px',
+              fontSize: '20px',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+            }}>
+              {formatTime(survivalTime)}
+            </div>
+            
+            {/* Volume Slider */}
+            <div style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              color: 'white',
+              padding: '12px 18px',
+              borderRadius: '8px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+              pointerEvents: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              minWidth: '200px'
+            }}>
+              <span style={{ fontSize: '14px', fontWeight: 'bold' }}>Vol:</span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                value={masterVolume}
+                onChange={(e) => setMasterVolume(parseFloat(e.target.value))}
+                style={{
+                  flex: 1,
+                  height: '4px',
+                  borderRadius: '2px',
+                  background: '#333',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              />
+              <span style={{ fontSize: '12px', minWidth: '35px' }}>
+                {Math.round(masterVolume * 100)}%
+              </span>
+            </div>
           </div>
         )}
 
