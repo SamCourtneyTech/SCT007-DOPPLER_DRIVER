@@ -41,9 +41,9 @@ export default function PlaneShadow() {
       return;
     }
 
-    // Animate plane shadow across screen from left to right
+    // Animate plane shadow across screen from right to left
     const progress = elapsed / duration;
-    const xPosition = -20 + (progress * 40); // Move from x=-20 to x=20
+    const xPosition = 20 - (progress * 40); // Move from x=20 to x=-20
     
     shadowRef.current.position.set(xPosition, 0.01, 0); // Slightly above ground
     shadowRef.current.visible = true;
@@ -63,15 +63,39 @@ export default function PlaneShadow() {
   if (!isVisible) return null;
 
   return (
-    <mesh ref={shadowRef} rotation={[-Math.PI / 2, 0, 0]} visible={false}>
-      {/* Plane shadow shape - simple airplane silhouette */}
-      <planeGeometry args={[1, 0.6]} />
-      <meshBasicMaterial 
-        color="#000000" 
-        transparent 
-        opacity={0.5}
-        depthWrite={false}
-      />
-    </mesh>
+    <group ref={shadowRef} rotation={[-Math.PI / 2, 0, 0]} visible={false}>
+      {/* Airplane shadow - fuselage (main body) */}
+      <mesh position={[0, 0, 0]}>
+        <planeGeometry args={[2.5, 0.4]} />
+        <meshBasicMaterial 
+          color="#000000" 
+          transparent 
+          opacity={0.5}
+          depthWrite={false}
+        />
+      </mesh>
+      
+      {/* Wings */}
+      <mesh position={[0, 0, 0]}>
+        <planeGeometry args={[0.8, 2.2]} />
+        <meshBasicMaterial 
+          color="#000000" 
+          transparent 
+          opacity={0.5}
+          depthWrite={false}
+        />
+      </mesh>
+      
+      {/* Tail */}
+      <mesh position={[-0.9, 0, 0]}>
+        <planeGeometry args={[0.6, 0.8]} />
+        <meshBasicMaterial 
+          color="#000000" 
+          transparent 
+          opacity={0.5}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
   );
 }
