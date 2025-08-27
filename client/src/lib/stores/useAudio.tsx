@@ -107,7 +107,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       }
       
       missileSound.currentTime = 0;
-      missileSound.volume = 0.7;
+      missileSound.volume = 0.84; // 20% louder than 0.7
       missileSound.play().catch(error => {
         console.log("Missile sound play prevented:", error);
       });

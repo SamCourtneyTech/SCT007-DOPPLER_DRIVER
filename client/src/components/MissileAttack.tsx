@@ -19,7 +19,7 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
     
     if (missile.phase === 'impact' && explosionRef.current) {
       // Show explosion effect
-      const explosionAge = timeElapsed - 22000; // Time since impact
+      const explosionAge = timeElapsed - 24000; // Time since impact
       if (explosionAge > 0 && explosionAge < 2000) {
         // Scale explosion based on age
         const scale = Math.min(3, explosionAge / 1000 * 3);
@@ -106,19 +106,7 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
         </mesh>
       </group>
 
-      {/* Warning indicator - shows target lane */}
-      {(missile.phase === 'warning' || missile.phase === 'incoming') && (
-        <mesh position={[targetX, 0.1, 0]}>
-          <cylinderGeometry args={[1.5, 1.5, 0.1]} />
-          <meshStandardMaterial 
-            color="#ff0000" 
-            emissive="#ff0000"
-            emissiveIntensity={0.5}
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
-      )}
+{/* Warning indicator removed - no visual indication of target lane */}
     </group>
   );
 }
