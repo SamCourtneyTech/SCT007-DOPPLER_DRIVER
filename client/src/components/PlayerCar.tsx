@@ -122,7 +122,7 @@ export default function PlayerCar() {
       </mesh>
 
       {/* Headlights - always on, brighter at night */}
-      <mesh position={[-0.5, 0.2, -1.6]}>
+      <mesh position={[-0.5, 0.2, 1.6]}>
         <sphereGeometry args={[0.15, 8, 8]} />
         <meshStandardMaterial 
           color="#ffffff" 
@@ -130,7 +130,7 @@ export default function PlayerCar() {
           emissiveIntensity={darkness > 0.3 ? 0.8 : 0.3}
         />
       </mesh>
-      <mesh position={[0.5, 0.2, -1.6]}>
+      <mesh position={[0.5, 0.2, 1.6]}>
         <sphereGeometry args={[0.15, 8, 8]} />
         <meshStandardMaterial 
           color="#ffffff" 
@@ -141,8 +141,8 @@ export default function PlayerCar() {
       
       {/* Headlight beams - always on, stronger at night */}
       <spotLight
-        position={[-0.5, 0.2, -1.6]}
-        target-position={[-2, 0, -10]}
+        position={[-0.5, 0.2, 1.6]}
+        target-position={[-2, 0, 10]}
         angle={0.3}
         penumbra={0.1}
         intensity={darkness > 0.3 ? 1.2 : 0.4}
@@ -150,8 +150,8 @@ export default function PlayerCar() {
         color="#ffffff"
       />
       <spotLight
-        position={[0.5, 0.2, -1.6]}
-        target-position={[2, 0, -10]}
+        position={[0.5, 0.2, 1.6]}
+        target-position={[2, 0, 10]}
         angle={0.3}
         penumbra={0.1}
         intensity={darkness > 0.3 ? 1.2 : 0.4}
@@ -160,7 +160,7 @@ export default function PlayerCar() {
       />
 
       {/* Brake lights - always visible but more prominent at night */}
-      <mesh position={[-0.6, 0.3, 1.6]}>
+      <mesh position={[-0.6, 0.3, -1.6]}>
         <sphereGeometry args={[0.1, 8, 8]} />
         <meshStandardMaterial 
           color="#ff0000" 
@@ -168,7 +168,7 @@ export default function PlayerCar() {
           emissiveIntensity={darkness > 0.3 ? 0.6 : 0.2}
         />
       </mesh>
-      <mesh position={[0.6, 0.3, 1.6]}>
+      <mesh position={[0.6, 0.3, -1.6]}>
         <sphereGeometry args={[0.1, 8, 8]} />
         <meshStandardMaterial 
           color="#ff0000" 
