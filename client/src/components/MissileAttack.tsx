@@ -33,11 +33,11 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
     if (missile.phase === 'incoming' && missileRef.current) {
       // Show incoming missile
       const missileAge = timeElapsed - 16000; // Time since missile phase started
-      if (missileAge > 0 && missileAge < 6000) {
-        // Missile falls from sky over 6 seconds
-        const progress = missileAge / 6000;
+      if (missileAge > 0 && missileAge < 8000) {
+        // Missile falls from sky over 8 seconds (faster fall speed)
+        const progress = missileAge / 8000;
         const y = 50 - (progress * 50); // Fall from sky
-        const z = -5; // Slightly in front of player
+        const z = 10; // More forward for better visibility
         
         missileRef.current.position.set(targetX, y, z);
         missileRef.current.visible = true;
@@ -74,7 +74,7 @@ export default function MissileAttack({ missile }: MissileAttackProps) {
       </group>
 
       {/* Explosion effect */}
-      <group ref={explosionRef} position={[targetX, 0, -5]} visible={false}>
+      <group ref={explosionRef} position={[targetX, 0, 10]} visible={false}>
         <mesh>
           <sphereGeometry args={[1, 8, 8]} />
           <meshStandardMaterial 
