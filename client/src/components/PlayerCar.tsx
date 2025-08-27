@@ -92,7 +92,7 @@ export default function PlayerCar() {
   if (gameState === 'ready') return null;
 
   return (
-    <mesh ref={meshRef} position={[0, 0.6, playerZ]} castShadow>
+    <mesh ref={meshRef} position={[targetX, 0.6, playerZ]} castShadow>
       {/* Player car body */}
       <boxGeometry args={[1.5, 0.8, 3]} />
       <meshLambertMaterial color="#ff4444" />
