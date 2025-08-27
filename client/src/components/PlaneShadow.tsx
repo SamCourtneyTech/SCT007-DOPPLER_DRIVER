@@ -75,9 +75,20 @@ export default function PlaneShadow() {
         />
       </mesh>
       
-      {/* Wings */}
-      <mesh position={[0, 0, 0]}>
-        <planeGeometry args={[0.8, 2.2]} />
+      {/* Left Wing - triangular */}
+      <mesh position={[0, 1.0, 0]} rotation={[0, 0, Math.PI / 4]}>
+        <coneGeometry args={[0.8, 0.1, 3]} />
+        <meshBasicMaterial 
+          color="#000000" 
+          transparent 
+          opacity={0.5}
+          depthWrite={false}
+        />
+      </mesh>
+      
+      {/* Right Wing - triangular */}
+      <mesh position={[0, -1.0, 0]} rotation={[0, 0, -Math.PI / 4]}>
+        <coneGeometry args={[0.8, 0.1, 3]} />
         <meshBasicMaterial 
           color="#000000" 
           transparent 
