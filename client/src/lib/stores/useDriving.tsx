@@ -43,6 +43,7 @@ interface DrivingState {
   policeCars: PoliceCar[];
   policeChase: PoliceChase | null;
   lastPoliceChaseTime: number;
+  gameStartTime: number;
   cameraShake: number;
   
   // Actions
@@ -74,6 +75,7 @@ export const useDriving = create<DrivingState>()(
     policeCars: [],
     policeChase: null,
     lastPoliceChaseTime: 0,
+    gameStartTime: 0,
     cameraShake: 0,
     
     startGame: () => {
@@ -87,6 +89,7 @@ export const useDriving = create<DrivingState>()(
         policeCars: [],
         policeChase: null,
         lastPoliceChaseTime: 0,
+        gameStartTime: Date.now(),
         cameraShake: 0,
         playerLane: 1,
         playerZ: -8
@@ -192,13 +195,17 @@ export const useDriving = create<DrivingState>()(
     },
 
     triggerMissileAttack: (currentTime: number) => {
-      const { lastMissileTime, missileAttacks } = get();
+      const { lastMissileTime, missileAttacks, gameStartTime } = get();
+      
+      // Don't start missiles until 2 minutes (120 seconds) into the game
+      const timeSinceGameStart = currentTime - gameStartTime;
+      if (timeSinceGameStart < 120000) return;
       
       // Don't trigger if there's already an active missile or one was triggered recently
       if (missileAttacks.length > 0 || currentTime - lastMissileTime < 30000) return;
       
-      // Random chance to trigger (increased for testing - normally would be 0.001 for ~2-3 minutes)
-      if (Math.random() < 0.005) { // 0.5% chance per frame check (about every 10-20 seconds for testing)
+      // Random chance to trigger after 2 minute mark
+      if (Math.random() < 0.003) { // Reduced chance since they start later
         const targetLane = Math.floor(Math.random() * 3);
         const newMissile: MissileAttack = {
           id: `missile_${Date.now()}`,
@@ -268,13 +275,24 @@ export const useDriving = create<DrivingState>()(
     },
 
     triggerPoliceChase: (currentTime: number) => {
-      const { survivalTime, lastPoliceChaseTime } = get();
+      const { gameStartTime, lastPoliceChaseTime, policeChase } = get();
       
-      // Trigger police chase every 30-40 seconds
+      // Only trigger if no active chase
+      if (policeChase) return;
+      
+      const timeSinceGameStart = currentTime - gameStartTime;
       const timeSinceLastChase = currentTime - lastPoliceChaseTime;
-      const nextChaseInterval = 30000 + (Math.random() * 10000); // 30-40 seconds
       
-      if (timeSinceLastChase >= nextChaseInterval && !get().policeChase) {
+      // First police chase at 30 seconds, then every 45 seconds
+      const isFirstChase = lastPoliceChaseTime === 0;
+      const firstChaseTime = 30000; // 30 seconds
+      const subsequentChaseInterval = 45000; // 45 seconds
+      
+      const shouldTrigger = isFirstChase 
+        ? timeSinceGameStart >= firstChaseTime
+        : timeSinceLastChase >= subsequentChaseInterval;
+      
+      if (shouldTrigger) {
         console.log('Police chase starting!');
         
         // Create 3 police cars in all lanes behind player
