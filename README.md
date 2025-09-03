@@ -12,8 +12,9 @@ DOPPLER_DRIVER is a browser-based game. You play as a statistical signal process
    ```bash
    npm install
 4. Start the development server:
+   ```bash
    npm run dev
-5. Open the localhost URL provided in your terminal.
+6. Open the localhost URL provided in your terminal.
 
 ## Disclaimer  
 Parts of this project were generated using the AI service Replit.
